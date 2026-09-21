@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database-Powered Chat Room</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .chat-container { width: 100%; max-width: 450px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: #007bff; color: white; padding: 15px; text-align: center; }
+        .header h2 { margin: 0; font-size: 1.2rem; }
+        .room-bar { display: flex; background: #e9ecef; border-bottom: 1px solid #ddd; padding: 8px; justify-content: space-around; }
+        .room-btn { border: none; background: white; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 0.85rem; font-weight: bold; color: #555; }
+        .room-btn.active { background: #007bff; color: white; }
+        #chat-window { height: 300px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+        .bubble-wrapper { display: flex; flex-direction: column; max-width: 70%; }
+        .mine { align-self: flex-end; align-items: flex-end; }
+        .theirs { align-self: flex-start; align-items: flex-start; }
+        .sender-name { font-size: 0.75rem; color: #666; margin-bottom: 2px; font-weight: bold; }
+        .bubble { padding: 10px 14px; border-radius: 18px; word-wrap: break-word; font-size: 0.95rem; }
+        .mine .bubble { background: #007bff; color: white; border-bottom-right-radius: 2px; }
+        .theirs .bubble { background: #e9ecef; color: #333; border-bottom-left-radius: 2px; }
+        .timestamp { font-size: 0.7rem; color: #999; margin-top: 2px; }
+        #typing-status { height: 20px; font-size: 0.8rem; color: #666; font-style: italic; padding: 0 15px; background: #fafafa; display: flex; align-items: center; }
+        .input-area { display: flex; border-top: 1px solid #eee; padding: 10px; background: white; }
+        #message-input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 0.95rem; }
+        #send-button { background: #007bff; color: white; border: none; padding: 0 20px; margin-left: 8px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="header">
+            <h2>Persistent Chat Network Hub 🌐</h2>
+        </div>
+        
+        <div class="room-bar">
+            <button class="room-btn active" onclick="switchRoom('general')" id="btn-general">#general (0)</button>
+            <button class="room-btn" onclick="switchRoom('gaming')" id="btn-gaming">#gaming (0)</button>
+            <button class="room-btn" onclick="switchRoom('music')" id="btn-music">#music (0)</button>
+        </div>
+
+        <div id="chat-window"></div>
+        <div id="typing-status"></div>
+
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let username = prompt("Enter your chat nickname:") || "Anonymous";
+        let activeRoom = 'general';
+
+        // const socket = new WebSocket('ws://localhost:3000');
+
+        // Automatically determines whether to use local ws:// or live production wss:// web protocols
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host || 'localhost:3000';
+        const socket = new WebSocket(`${protocol}//${host}`);
+
+        const chatWindow = document.getElementById('chat-window');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const typingStatus = document.getElementById('typing-status');
+
+        let typingTimeout;
+        let isCurrentlyTyping = false;
+
+        function renderBubble(user, text, time, style) {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('bubble-wrapper', style);
+
+            if (style === 'theirs') {
+                const nameLabel = document.createElement('div');
+                nameLabel.classList.add('sender-name');
+                nameLabel.textContent = user;
+                wrapper.appendChild(nameLabel);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            bubble.textContent = text;
+            wrapper.appendChild(bubble);
+
+            const timeLabel = document.createElement('div');
+            timeLabel.classList.add('timestamp');
+            timeLabel.textContent = time;
+            wrapper.appendChild(timeLabel);
+
+            chatWindow.appendChild(wrapper);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function switchRoom(newRoomName) {
+            if (newRoomName === activeRoom) return;
+            
+            document.getElementById(`btn-${activeRoom}`).classList.remove('active');
+            document.getElementById(`btn-${newRoomName}`).classList.add('active');
+            
+            activeRoom = newRoomName;
+            chatWindow.innerHTML = ''; 
+            typingStatus.textContent = ''; 
+
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'join_room',
+                    room: activeRoom
+                }));
+            }
+        }
+
+        function sendTypingSignal(statusType) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: statusType,
+                    username: username
+                }));
+            }
+        }
+
+        messageInput.addEventListener('input', () => {
+            if (!isCurrentlyTyping) {
+                isCurrentlyTyping = true;
+                sendTypingSignal('typing');
+            }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isCurrentlyTyping = false;
+                sendTypingSignal('stopped_typing');
+            }, 1500);
+        });
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'room_counts') {
+                document.getElementById('btn-general').textContent = `#general (${data.counts['general'] || 0})`;
+                document.getElementById('btn-gaming').textContent = `#gaming (${data.counts['gaming'] || 0})`;
+                document.getElementById('btn-music').textContent = `#music (${data.counts['music'] || 0})`;
+                return;
+            }
+
+            // HANDLE RETRIEVED CHAT HISTORY BATCHES
+            if (data.type === 'chat_history') {
+                data.messages.forEach((msg) => {
+                    const style = (msg.username === username) ? 'mine' : 'theirs';
+                    renderBubble(msg.username, msg.text, msg.time, style);
+                });
+                return;
+            }
+
+            if (data.type === 'typing') {
+                typingStatus.textContent = `${data.username} is typing...`;
+                return;
+            }
+            if (data.type === 'stopped_typing') {
+                typingStatus.textContent = '';
+                return;
+            }
+
+            renderBubble(data.username, data.text, data.time, 'theirs');
+        };
+
+        function dispatchMessage() {
+            const messageText = messageInput.value.trim();
+            if (messageText !== "" && socket.readyState === WebSocket.OPEN) {
+                const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                clearTimeout(typingTimeout);
+                isCurrentlyTyping = false;
+                sendTypingSignal('stopped_typing');
+
+                const payload = {
+                    type: 'chat_message',
+                    username: username,
+                    text: messageText,
+                    time: currentTime
+                };
+
+                socket.send(JSON.stringify(payload));        
+                renderBubble(username, messageText, currentTime, 'mine'); 
+                messageInput.value = '';          
+            }
+        }
+
+        sendButton.addEventListener('click', dispatchMessage);
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') dispatchMessage();
+        });
+
+        socket.onopen = () => {
+            socket.send(JSON.stringify({ type: 'join_room', room: activeRoom }));
+        };
+    </script>
+</body>
+</html>
