@@ -3,10 +3,11 @@ const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
-const bcrypt = require('bcryptjs'); // Import password hashing engine
+const bcrypt = require('bcryptjs');
 
 const PORT = process.env.PORT || 3000;
 
+// Set up storage directory for live production persistence on Render
 const dbPath = process.env.RENDER_DATA_DIR 
     ? path.join(process.env.RENDER_DATA_DIR, 'chat.db') 
     : './chat.db';
@@ -38,13 +39,12 @@ db.serialize(() => {
 
 // Standard HTTP Request Router for Register, Login, and loading UI
 const server = http.createServer((req, res) => {
-    // Helper to send clean JSON text responses
     const sendJSON = (status, obj) => {
         res.writeHead(status, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(obj));
     };
 
-    // ROUTE: Handle User Registration (Account Creation)
+    // ROUTE: Handle User Registration
     if (req.method === 'POST' && req.url === '/register') {
         let body = '';
         req.on('data', chunk => body += chunk);
@@ -53,7 +53,6 @@ const server = http.createServer((req, res) => {
                 const { username, password } = JSON.parse(body);
                 if (!username || !password) return sendJSON(400, { error: 'Missing fields' });
 
-                // Hash password securely (10 encryption cycles)
                 const hashedPassword = bcrypt.hashSync(password, 10);
 
                 db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hashedPassword], function(err) {
@@ -77,11 +76,9 @@ const server = http.createServer((req, res) => {
                 db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, user) => {
                     if (err || !user) return sendJSON(401, { error: 'Invalid username or password' });
 
-                    // Verify encrypted password match
                     const passwordMatches = bcrypt.compareSync(password, user.password);
                     if (!passwordMatches) return sendJSON(401, { error: 'Invalid username or password' });
 
-                    // Success: send username confirmation flag to client
                     sendJSON(200, { username: user.username });
                 });
             } catch (e) { sendJSON(400, { error: 'Invalid payload' }); }
@@ -135,10 +132,10 @@ wss.on('connection', (ws) => {
                 stmt.finalize();
             }
 
-            // 3. BROADCAST FIX: Ensure the type data property passes along flawlessly
+            // 3. Broadcast to all clients in the same room
             wss.clients.forEach(c => {
                 if (c !== ws && c.readyState === 1 && c.currentRoom === ws.currentRoom) {
-                    c.send(JSON.stringify(parsedData)); 
+                    c.send(rawMessage); 
                 }
             });
         } catch (error) { console.error(error); }
