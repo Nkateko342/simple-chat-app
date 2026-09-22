@@ -118,6 +118,7 @@ wss.on('connection', (ws) => {
             const rawMessage = bufferData.toString();
             const parsedData = JSON.parse(rawMessage);
 
+            // 1. Handle Room Movement
             if (parsedData.type === 'join_room') {
                 ws.currentRoom = parsedData.room;
                 broadcastRoomCounts();
@@ -127,14 +128,18 @@ wss.on('connection', (ws) => {
                 return;
             }
 
+            // 2. Handle Text Messaging (Save to database)
             if (parsedData.type === 'chat_message') {
                 const stmt = db.prepare(`INSERT INTO messages (room, username, text, time) VALUES (?, ?, ?, ?)`);
                 stmt.run(ws.currentRoom, parsedData.username, parsedData.text, parsedData.time);
                 stmt.finalize();
             }
 
+            // 3. BROADCAST FIX: Ensure the type data property passes along flawlessly
             wss.clients.forEach(c => {
-                if (c !== ws && c.readyState === 1 && c.currentRoom === ws.currentRoom) c.send(rawMessage);
+                if (c !== ws && c.readyState === 1 && c.currentRoom === ws.currentRoom) {
+                    c.send(JSON.stringify(parsedData)); 
+                }
             });
         } catch (error) { console.error(error); }
     });
