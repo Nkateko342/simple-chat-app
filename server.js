@@ -16,7 +16,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
-    // Upgraded users table structure containing avatar mapping values
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,14 +25,25 @@ db.serialize(() => {
         )
     `);
 
+    // Added message_id explicitly mapping structure tracking requirements
     db.run(`
         CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id TEXT PRIMARY KEY,
             room TEXT NOT NULL,
             username TEXT NOT NULL,
             text TEXT NOT NULL,
             time TEXT NOT NULL,
             avatar TEXT DEFAULT '👤'
+        )
+    `);
+
+    // New Reactions Table mapping user choices to message IDs
+    db.run(`
+        CREATE TABLE IF NOT EXISTS reactions (
+            message_id TEXT NOT NULL,
+            username TEXT NOT NULL,
+            emoji TEXT NOT NULL,
+            PRIMARY KEY (message_id, username, emoji)
         )
     `);
 });
@@ -140,16 +150,50 @@ wss.on('connection', (ws) => {
                 ws.currentRoom = parsedData.room;
                 broadcastActiveState();
                 
-                db.all(`SELECT username, text, time, avatar FROM messages WHERE room = ? ORDER BY id ASC LIMIT 50`, [ws.currentRoom], (err, rows) => {
-                    if (!err) ws.send(JSON.stringify({ type: 'chat_history', messages: rows }));
+                // Fetch historical messages alongside grouped reaction metrics counts
+                const query = `
+                    SELECT m.*, 
+                           (SELECT json_group_array(json_object('emoji', r.emoji, 'username', r.username)) 
+                            FROM reactions r WHERE r.message_id = m.message_id) as reactions
+                    FROM messages m WHERE m.room = ? ORDER BY m.message_id ASC LIMIT 50
+                `;
+
+                db.all(query, [ws.currentRoom], (err, rows) => {
+                    if (!err) {
+                        const historyPayload = rows.map(row => ({
+                            message_id: row.message_id,
+                            username: row.username,
+                            text: row.text,
+                            time: row.time,
+                            avatar: row.avatar,
+                            reactions: JSON.parse(row.reactions || '[]')
+                        }));
+                        ws.send(JSON.stringify({ type: 'chat_history', messages: historyPayload }));
+                    }
                 });
                 return;
             }
 
             if (parsedData.type === 'chat_message') {
-                const stmt = db.prepare(`INSERT INTO messages (room, username, text, time, avatar) VALUES (?, ?, ?, ?, ?)`);
-                stmt.run(ws.currentRoom, parsedData.username, parsedData.text, parsedData.time, parsedData.avatar);
+                const stmt = db.prepare(`INSERT INTO messages (message_id, room, username, text, time, avatar) VALUES (?, ?, ?, ?, ?, ?)`);
+                stmt.run(parsedData.message_id, ws.currentRoom, parsedData.username, parsedData.text, parsedData.time, parsedData.avatar);
                 stmt.finalize();
+            }
+
+            // NEW STATE HANDLING: User toggles a reaction button event payload
+            if (parsedData.type === 'toggle_reaction') {
+                const checkQuery = `SELECT * FROM reactions WHERE message_id = ? AND username = ? AND emoji = ?`;
+                db.get(checkQuery, [parsedData.message_id, parsedData.username, parsedData.emoji], (err, row) => {
+                    if (row) {
+                        // If it exists, user is clicking it again to remove it
+                        db.run(`DELETE FROM reactions WHERE message_id = ? AND username = ? AND emoji = ?`, 
+                            [parsedData.message_id, parsedData.username, parsedData.emoji]);
+                    } else {
+                        // Otherwise, insert the new reaction interaction choice
+                        db.run(`INSERT INTO reactions (message_id, username, emoji) VALUES (?, ?, ?)`, 
+                            [parsedData.message_id, parsedData.username, parsedData.emoji]);
+                    }
+                });
             }
 
             wss.clients.forEach(c => {
@@ -163,4 +207,4 @@ wss.on('connection', (ws) => {
     ws.on('close', () => { broadcastActiveState(); });
 });
 
-server.listen(PORT, () => console.log(`Auth, DM & Profile server active on port ${PORT}`));
+server.listen(PORT, () => console.log(`Auth, DM, Profile & Reactions server active on port ${PORT}`));
