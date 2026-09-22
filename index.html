@@ -3,16 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database-Powered Chat Room</title>
+    <title>Secure Real-Time Chat</title>
     <style>
         body { font-family: sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        
+        /* AUTHENTICATION BOX STYLING */
+        .auth-container { width: 100%; max-width: 380px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
+        .auth-container h3 { margin-top: 0; text-align: center; color: #333; font-size: 1.4rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #666; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; outline: none; }
+        .form-group input:focus { border-color: #007bff; }
+        .auth-btn { width: 100%; background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .auth-btn:hover { background: #0056b3; }
+        .toggle-text { text-align: center; font-size: 0.85rem; color: #666; margin-top: 15px; }
+        .toggle-text span { color: #007bff; cursor: pointer; font-weight: bold; }
+        .error-msg { color: #dc3545; font-size: 0.85rem; margin-bottom: 10px; text-align: center; display: none; }
+        .success-msg { color: #28a745; font-size: 0.85rem; margin-bottom: 10px; text-align: center; display: none; }
+
+        /* CHAT APPLICATION STYLING */
         .chat-container { width: 100%; max-width: 450px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: #007bff; color: white; padding: 15px; text-align: center; }
-        .header h2 { margin: 0; font-size: 1.2rem; }
+        .header { background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { margin: 0; font-size: 1.1rem; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        .logout-btn:hover { background: #bd2130; }
+
         .room-bar { display: flex; background: #e9ecef; border-bottom: 1px solid #ddd; padding: 8px; justify-content: space-around; }
         .room-btn { border: none; background: white; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 0.85rem; font-weight: bold; color: #555; }
         .room-btn.active { background: #007bff; color: white; }
         #chat-window { height: 300px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+        
         .bubble-wrapper { display: flex; flex-direction: column; max-width: 70%; }
         .mine { align-self: flex-end; align-items: flex-end; }
         .theirs { align-self: flex-start; align-items: flex-start; }
@@ -22,6 +42,7 @@
         .theirs .bubble { background: #e9ecef; color: #333; border-bottom-left-radius: 2px; }
         .timestamp { font-size: 0.7rem; color: #999; margin-top: 2px; }
         #typing-status { height: 20px; font-size: 0.8rem; color: #666; font-style: italic; padding: 0 15px; background: #fafafa; display: flex; align-items: center; }
+        
         .input-area { display: flex; border-top: 1px solid #eee; padding: 10px; background: white; }
         #message-input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 0.95rem; }
         #send-button { background: #007bff; color: white; border: none; padding: 0 20px; margin-left: 8px; border-radius: 20px; font-weight: bold; cursor: pointer; }
@@ -29,9 +50,31 @@
 </head>
 <body>
 
-    <div class="chat-container">
+    <!-- 1. REGISTRATION & LOGIN SCREEN LAYOUT -->
+    <div id="auth-box" class="auth-container">
+        <h3 id="auth-title">Login to Chat</h3>
+        <div id="error-box" class="error-msg"></div>
+        <div id="success-box" class="success-msg"></div>
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button id="auth-submit-btn" class="auth-btn" onclick="submitAuth()">Login</button>
+        <p class="toggle-text" id="toggle-area">Don't have an account? <span onclick="toggleAuthMode(true)">Register here</span></p>
+    </div>
+
+    <!-- 2. MAIN CHAT DASHBOARD LAYOUT (HIDDEN BY DEFAULT) -->
+    <div id="chat-box" class="chat-container" style="display: none;">
         <div class="header">
-            <h2>Persistent Chat Network Hub 🌐</h2>
+            <h2 id="welcome-label">Live Network Hub 🌐</h2>
+            <!-- LOGOUT CONTROL -->
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
         
         <div class="room-bar">
@@ -50,149 +93,94 @@
     </div>
 
     <script>
-        let username = prompt("Enter your chat nickname:") || "Anonymous";
+        let currentUser = null;
         let activeRoom = 'general';
+        let socket = null;
+        let isRegisterMode = false;
 
-        // const socket = new WebSocket('ws://localhost:3000');
-
-        // Automatically determines whether to use local ws:// or live production wss:// web protocols
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host || 'localhost:3000';
-        const socket = new WebSocket(`${protocol}//${host}`);
+        let typingTimeout;
+        let isCurrentlyTyping = false;
 
         const chatWindow = document.getElementById('chat-window');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const typingStatus = document.getElementById('typing-status');
+        const errorBox = document.getElementById('error-box');
+        const successBox = document.getElementById('success-box');
 
-        let typingTimeout;
-        let isCurrentlyTyping = false;
+        // Toggle Visual elements between Login and Register states
+        function toggleAuthMode(toRegister) {
+            isRegisterMode = toRegister;
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
 
-        function renderBubble(user, text, time, style) {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('bubble-wrapper', style);
-
-            if (style === 'theirs') {
-                const nameLabel = document.createElement('div');
-                nameLabel.classList.add('sender-name');
-                nameLabel.textContent = user;
-                wrapper.appendChild(nameLabel);
-            }
-
-            const bubble = document.createElement('div');
-            bubble.classList.add('bubble');
-            bubble.textContent = text;
-            wrapper.appendChild(bubble);
-
-            const timeLabel = document.createElement('div');
-            timeLabel.classList.add('timestamp');
-            timeLabel.textContent = time;
-            wrapper.appendChild(timeLabel);
-
-            chatWindow.appendChild(wrapper);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function switchRoom(newRoomName) {
-            if (newRoomName === activeRoom) return;
-            
-            document.getElementById(`btn-${activeRoom}`).classList.remove('active');
-            document.getElementById(`btn-${newRoomName}`).classList.add('active');
-            
-            activeRoom = newRoomName;
-            chatWindow.innerHTML = ''; 
-            typingStatus.textContent = ''; 
-
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({
-                    type: 'join_room',
-                    room: activeRoom
-                }));
+            if (isRegisterMode) {
+                document.getElementById('auth-title').textContent = 'Create Account';
+                document.getElementById('auth-submit-btn').textContent = 'Register';
+                document.getElementById('toggle-area').innerHTML = 'Already have an account? <span onclick="toggleAuthMode(false)">Login here</span>';
+            } else {
+                document.getElementById('auth-title').textContent = 'Login to Chat';
+                document.getElementById('auth-submit-btn').textContent = 'Login';
+                document.getElementById('toggle-area').innerHTML = 'Don\'t have an account? <span onclick="toggleAuthMode(true)">Register here</span>';
             }
         }
 
-        function sendTypingSignal(statusType) {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({
-                    type: statusType,
-                    username: username
-                }));
-            }
-        }
+        // Post credentials over traditional HTTP routes
+        async function submitAuth() {
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
 
-        messageInput.addEventListener('input', () => {
-            if (!isCurrentlyTyping) {
-                isCurrentlyTyping = true;
-                sendTypingSignal('typing');
-            }
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                isCurrentlyTyping = false;
-                sendTypingSignal('stopped_typing');
-            }, 1500);
-        });
+            const usernameVal = document.getElementById('username').value.trim();
+            const passwordVal = document.getElementById('password').value;
 
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'room_counts') {
-                document.getElementById('btn-general').textContent = `#general (${data.counts['general'] || 0})`;
-                document.getElementById('btn-gaming').textContent = `#gaming (${data.counts['gaming'] || 0})`;
-                document.getElementById('btn-music').textContent = `#music (${data.counts['music'] || 0})`;
+            if (!usernameVal || !passwordVal) {
+                showError('Please fill out all fields.');
                 return;
             }
 
-            // HANDLE RETRIEVED CHAT HISTORY BATCHES
-            if (data.type === 'chat_history') {
-                data.messages.forEach((msg) => {
-                    const style = (msg.username === username) ? 'mine' : 'theirs';
-                    renderBubble(msg.username, msg.text, msg.time, style);
+            const endpoint = isRegisterMode ? '/register' : '/login';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usernameVal, password: passwordVal })
                 });
-                return;
-            }
 
-            if (data.type === 'typing') {
-                typingStatus.textContent = `${data.username} is typing...`;
-                return;
-            }
-            if (data.type === 'stopped_typing') {
-                typingStatus.textContent = '';
-                return;
-            }
+                const data = await response.json();
 
-            renderBubble(data.username, data.text, data.time, 'theirs');
-        };
+                if (!response.ok) {
+                    showError(data.error || 'Something went wrong.');
+                    return;
+                }
 
-        function dispatchMessage() {
-            const messageText = messageInput.value.trim();
-            if (messageText !== "" && socket.readyState === WebSocket.OPEN) {
-                const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                clearTimeout(typingTimeout);
-                isCurrentlyTyping = false;
-                sendTypingSignal('stopped_typing');
-
-                const payload = {
-                    type: 'chat_message',
-                    username: username,
-                    text: messageText,
-                    time: currentTime
-                };
-
-                socket.send(JSON.stringify(payload));        
-                renderBubble(username, messageText, currentTime, 'mine'); 
-                messageInput.value = '';          
+                if (isRegisterMode) {
+                    successBox.textContent = 'Account created! You can now log in.';
+                    successBox.style.display = 'block';
+                    toggleAuthMode(false); // Move them to login view automatically
+                } else {
+                    // Login Success
+                    currentUser = data.username;
+                    initializeChatDashboard();
+                }
+            } catch (err) {
+                showError('Could not connect to authentication server.');
             }
         }
 
-        sendButton.addEventListener('click', dispatchMessage);
-        messageInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') dispatchMessage();
-        });
+        function showError(msg) {
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+        }
 
-        socket.onopen = () => {
-            socket.send(JSON.stringify({ type: 'join_room', room: activeRoom }));
-        };
-    </script>
-</body>
-</html>
+        // Move layouts and start the WebSocket loop
+        function initializeChatDashboard() {
+            document.getElementById('auth-box').style.display = 'none';
+            document.getElementById('chat-box').style.display = 'flex';
+            document.getElementById('welcome-label').textContent = `Hi, ${currentUser} 🌐`;
+            
+            chatWindow.innerHTML = '';
+
+            // Setup WebSocket Connection
