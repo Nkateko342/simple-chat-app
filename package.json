@@ -1,18 +1,14 @@
 {
   "name": "simple-chat-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Secure Real-Time Chat",
+  "main": "server.js",
   "scripts": {
-  "start": "node server.js",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+    "start": "node server.js"
+  },
   "dependencies": {
-    "sqlite3": "^6.0.1",
-    "ws": "^8.21.3"
+    "bcryptjs": "^2.4.3",
+    "sqlite3": "^5.1.7",
+    "ws": "^8.18.0"
   }
 }
