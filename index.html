@@ -3,16 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Secure DM Chat App with Profiles</title>
+    <title>Secure Chat with Message Reactions</title>
 
     <style>
-
         /* =========================================
            GENERAL PAGE STYLING
         ========================================= */
@@ -29,7 +27,7 @@
         }
 
         /* =========================================
-           AUTHENTICATION CONTAINER
+           AUTHENTICATION
         ========================================= */
 
         .auth-container {
@@ -72,7 +70,7 @@
         }
 
         /* =========================================
-           AVATAR SELECTOR
+           AVATAR PICKER
         ========================================= */
 
         .avatar-picker-grid {
@@ -98,7 +96,7 @@
         }
 
         /* =========================================
-           AUTHENTICATION BUTTONS
+           AUTH BUTTONS
         ========================================= */
 
         .auth-btn {
@@ -132,7 +130,7 @@
         }
 
         /* =========================================
-           ERROR AND SUCCESS MESSAGES
+           MESSAGES
         ========================================= */
 
         .error-msg {
@@ -152,7 +150,7 @@
         }
 
         /* =========================================
-           MAIN CHAT CONTAINER
+           CHAT CONTAINER
         ========================================= */
 
         .chat-container {
@@ -187,10 +185,6 @@
             align-items: center;
         }
 
-        /* =========================================
-           USER PROFILE BADGE
-        ========================================= */
-
         .user-profile-badge {
             display: flex;
             align-items: center;
@@ -208,10 +202,6 @@
             word-break: break-all;
         }
 
-        /* =========================================
-           LOGOUT BUTTON
-        ========================================= */
-
         .logout-btn {
             background: #dc3545;
             color: white;
@@ -221,10 +211,6 @@
             font-size: 0.75rem;
             cursor: pointer;
         }
-
-        /* =========================================
-           SIDEBAR SECTIONS
-        ========================================= */
 
         .section-title {
             font-size: 0.75rem;
@@ -241,10 +227,6 @@
             gap: 2px;
             padding: 0 10px;
         }
-
-        /* =========================================
-           SIDEBAR ITEMS
-        ========================================= */
 
         .item-btn {
             border: none;
@@ -285,7 +267,7 @@
         }
 
         /* =========================================
-           MAIN CHAT AREA
+           MAIN CHAT
         ========================================= */
 
         .main-chat {
@@ -321,7 +303,8 @@
             display: flex;
             gap: 10px;
             max-width: 75%;
-            align-items: flex-end;
+            align-items: flex-start;
+            position: relative;
         }
 
         .mine {
@@ -336,12 +319,13 @@
 
         .msg-avatar {
             font-size: 1.5rem;
-            margin-bottom: 2px;
+            margin-top: 4px;
         }
 
         .msg-content-area {
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .mine .msg-content-area {
@@ -364,6 +348,7 @@
             border-radius: 18px;
             word-wrap: break-word;
             font-size: 0.95rem;
+            position: relative;
         }
 
         .mine .bubble {
@@ -385,7 +370,50 @@
         }
 
         /* =========================================
-           TYPING STATUS
+           MESSAGE REACTIONS
+        ========================================= */
+
+        .reaction-bar {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .reaction-trigger-btn {
+            border: none;
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        .reaction-trigger-btn:hover {
+            background: #ddd;
+        }
+
+        .reaction-badge {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .reaction-badge.active {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        /* =========================================
+           TYPING INDICATOR
         ========================================= */
 
         #typing-status {
@@ -399,7 +427,7 @@
         }
 
         /* =========================================
-           MESSAGE INPUT AREA
+           MESSAGE INPUT
         ========================================= */
 
         .input-area {
@@ -428,14 +456,13 @@
             font-weight: bold;
             cursor: pointer;
         }
-
     </style>
 </head>
 
 <body>
 
     <!-- =========================================
-         AUTHENTICATION FORM SCREEN
+         AUTHENTICATION CONTAINER
     ========================================= -->
 
     <div id="auth-box" class="auth-container">
@@ -443,7 +470,6 @@
         <h3 id="auth-title">Login to Chat</h3>
 
         <div id="error-box" class="error-msg"></div>
-
         <div id="success-box" class="success-msg"></div>
 
         <div class="form-group">
@@ -467,14 +493,13 @@
             >
         </div>
 
-        <!-- PROFILE AVATAR SELECTOR -->
+        <!-- Avatar Picker -->
 
         <div
             class="form-group"
             id="avatar-picker-section"
             style="display: none;"
         >
-
             <label>Choose Profile Picture Icon</label>
 
             <div class="avatar-picker-grid">
@@ -515,7 +540,6 @@
                 </span>
 
             </div>
-
         </div>
 
         <button
@@ -540,7 +564,7 @@
 
 
     <!-- =========================================
-         MAIN CHATROOM INTERFACE
+         CHAT CONTAINER
     ========================================= -->
 
     <div
@@ -554,8 +578,6 @@
         <div class="sidebar">
 
             <div class="sidebar-header">
-
-                <!-- USER PROFILE -->
 
                 <div class="user-profile-badge">
 
@@ -679,21 +701,25 @@
     <script>
 
         /* =========================================
-           APPLICATION STATE
+           GLOBAL VARIABLES
         ========================================= */
 
         let currentUser = null;
         let currentAvatar = '🦊';
         let selectedRegisterAvatar = '🦊';
+
         let activeRoom = 'general';
+
         let socket = null;
+
         let isRegisterMode = false;
+
         let typingTimeout;
         let isCurrentlyTyping = false;
 
 
         /* =========================================
-           DOM ELEMENT REFERENCES
+           DOM REFERENCES
         ========================================= */
 
         const chatWindow =
@@ -735,7 +761,7 @@
 
 
         /* =========================================
-           TOGGLE LOGIN / REGISTER MODE
+           AUTHENTICATION MODE
         ========================================= */
 
         function toggleAuthMode(toRegister) {
@@ -761,8 +787,7 @@
 
                 document.getElementById('toggle-area')
                     .innerHTML =
-                    'Already have an account? ' +
-                    '<span onclick="toggleAuthMode(false)">Login here</span>';
+                    'Already have an account? Login here';
 
             } else {
 
@@ -777,8 +802,7 @@
 
                 document.getElementById('toggle-area')
                     .innerHTML =
-                    'Do not have an account? ' +
-                    '<span onclick="toggleAuthMode(true)">Register here</span>';
+                    'Do not have an account? Register here';
             }
         }
 
@@ -802,7 +826,9 @@
                     .value;
 
             if (!usernameVal || !passwordVal) {
+
                 showError('Please fill out all fields.');
+
                 return;
             }
 
@@ -829,7 +855,8 @@
                     await fetch(endpoint, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type':
+                                'application/json'
                         },
                         body: JSON.stringify(bodyPayload)
                     });
@@ -838,10 +865,12 @@
                     await response.json();
 
                 if (!response.ok) {
+
                     showError(
                         data.error ||
                         'Something went wrong.'
                     );
+
                     return;
                 }
 
@@ -857,7 +886,9 @@
                 } else {
 
                     currentUser = data.username;
-                    currentAvatar = data.avatar || '🦊';
+
+                    currentAvatar =
+                        data.avatar || '🦊';
 
                     initializeChatDashboard();
                 }
@@ -872,7 +903,7 @@
 
 
         /* =========================================
-           DISPLAY ERROR
+           ERROR HANDLING
         ========================================= */
 
         function showError(msg) {
@@ -908,7 +939,8 @@
                     : 'ws:';
 
             const host =
-                window.location.host || 'localhost:3000';
+                window.location.host ||
+                'localhost:3000';
 
             socket =
                 new WebSocket(
@@ -916,9 +948,7 @@
                 );
 
 
-            /* =========================================
-               WEBSOCKET CONNECTED
-            ========================================= */
+            /* WebSocket connected */
 
             socket.onopen = () => {
 
@@ -939,9 +969,7 @@
             };
 
 
-            /* =========================================
-               WEBSOCKET MESSAGE HANDLER
-            ========================================= */
+            /* WebSocket messages */
 
             socket.onmessage = (event) => {
 
@@ -949,7 +977,7 @@
                     JSON.parse(event.data);
 
 
-                /* ONLINE USER / ROOM COUNTS */
+                /* State update */
 
                 if (data.type === 'state_update') {
 
@@ -968,15 +996,13 @@
                     ).textContent =
                         `(${data.counts['music'] || 0})`;
 
-                    updateOnlineUsersList(
-                        data.users
-                    );
+                    updateOnlineUsersList(data.users);
 
                     return;
                 }
 
 
-                /* CHAT HISTORY */
+                /* Chat history */
 
                 if (data.type === 'chat_history') {
 
@@ -988,11 +1014,13 @@
                                 : 'theirs';
 
                         renderBubble(
+                            msg.message_id,
                             msg.username,
                             msg.text,
                             msg.time,
                             style,
-                            msg.avatar
+                            msg.avatar,
+                            msg.reactions
                         );
                     });
 
@@ -1000,7 +1028,21 @@
                 }
 
 
-                /* TYPING STATUS */
+                /* Live reaction updates */
+
+                if (data.type === 'toggle_reaction') {
+
+                    updateBubbleReactionsLocally(
+                        data.message_id,
+                        data.username,
+                        data.emoji
+                    );
+
+                    return;
+                }
+
+
+                /* Typing indicator */
 
                 if (data.type === 'typing') {
 
@@ -1019,16 +1061,18 @@
                 }
 
 
-                /* NEW CHAT MESSAGE */
+                /* New chat message */
 
                 if (data.type === 'chat_message') {
 
                     renderBubble(
+                        data.message_id,
                         data.username,
                         data.text,
                         data.time,
                         'theirs',
-                        data.avatar
+                        data.avatar,
+                        []
                     );
                 }
             };
@@ -1036,7 +1080,7 @@
 
 
         /* =========================================
-           UPDATE ONLINE USERS
+           ONLINE USERS
         ========================================= */
 
         function updateOnlineUsersList(usersList) {
@@ -1057,7 +1101,6 @@
 
                 userBtn.classList.add('item-btn');
 
-
                 const dmRoomId =
                     ['dm', currentUser, user.username]
                         .sort()
@@ -1065,7 +1108,6 @@
 
                 userBtn.id =
                     `room-${dmRoomId}`;
-
 
                 userBtn.innerHTML = `
                     <div class="user-item-content">
@@ -1076,20 +1118,15 @@
                     <span class="status-dot"></span>
                 `;
 
-
-                userBtn.onclick = () => {
-
+                userBtn.onclick = () =>
                     switchRoom(
                         dmRoomId,
                         `DM with ${user.username}`
                     );
-                };
-
 
                 if (activeRoom === dmRoomId) {
                     userBtn.classList.add('active');
                 }
-
 
                 usersContainer.appendChild(userBtn);
             });
@@ -1120,15 +1157,157 @@
 
 
         /* =========================================
-           RENDER CHAT MESSAGE
+           REACTION TOGGLE
+        ========================================= */
+
+        function emitReactionToggle(msgId, emojiStr) {
+
+            if (
+                socket &&
+                socket.readyState === WebSocket.OPEN
+            ) {
+
+                const payload = {
+                    type: 'toggle_reaction',
+                    message_id: msgId,
+                    username: currentUser,
+                    emoji: emojiStr
+                };
+
+                socket.send(
+                    JSON.stringify(payload)
+                );
+
+                updateBubbleReactionsLocally(
+                    msgId,
+                    currentUser,
+                    emojiStr
+                );
+            }
+        }
+
+
+        /* =========================================
+           LOCAL REACTION UPDATE
+        ========================================= */
+
+        function updateBubbleReactionsLocally(
+            msgId,
+            clickingUser,
+            emojiStr
+        ) {
+
+            const trayContainer =
+                document.getElementById(
+                    `reactions-bar-${msgId}`
+                );
+
+            if (!trayContainer) {
+                return;
+            }
+
+            const existingBadge =
+                document.getElementById(
+                    `badge-${msgId}-${emojiStr}`
+                );
+
+
+            /* Existing reaction */
+
+            if (existingBadge) {
+
+                let users =
+                    JSON.parse(
+                        existingBadge.getAttribute(
+                            'data-users'
+                        ) || '[]'
+                    );
+
+                if (users.includes(clickingUser)) {
+
+                    users =
+                        users.filter(
+                            user => user !== clickingUser
+                        );
+
+                } else {
+
+                    users.push(clickingUser);
+                }
+
+
+                if (users.length === 0) {
+
+                    existingBadge.remove();
+
+                } else {
+
+                    existingBadge.setAttribute(
+                        'data-users',
+                        JSON.stringify(users)
+                    );
+
+                    existingBadge.innerHTML =
+                        `${emojiStr} <span>${users.length}</span>`;
+
+                    if (users.includes(currentUser)) {
+
+                        existingBadge.classList.add('active');
+
+                    } else {
+
+                        existingBadge.classList.remove('active');
+                    }
+                }
+
+
+            /* New reaction */
+
+            } else {
+
+                const badge =
+                    document.createElement('div');
+
+                badge.classList.add('reaction-badge');
+
+                badge.id =
+                    `badge-${msgId}-${emojiStr}`;
+
+                badge.setAttribute(
+                    'data-users',
+                    JSON.stringify([clickingUser])
+                );
+
+                badge.innerHTML =
+                    `${emojiStr} <span>1</span>`;
+
+                if (clickingUser === currentUser) {
+                    badge.classList.add('active');
+                }
+
+                badge.onclick = () =>
+                    emitReactionToggle(
+                        msgId,
+                        emojiStr
+                    );
+
+                trayContainer.appendChild(badge);
+            }
+        }
+
+
+        /* =========================================
+           RENDER MESSAGE BUBBLE
         ========================================= */
 
         function renderBubble(
+            msgId,
             user,
             text,
             time,
             style,
-            avatarEmoji = '👤'
+            avatarEmoji = '👤',
+            reactionsArray = []
         ) {
 
             const wrapper =
@@ -1139,8 +1318,11 @@
                 style
             );
 
+            wrapper.id =
+                `msg-wrapper-${msgId}`;
 
-            /* MESSAGE AVATAR */
+
+            /* Avatar */
 
             const avatarDiv =
                 document.createElement('div');
@@ -1153,7 +1335,7 @@
             wrapper.appendChild(avatarDiv);
 
 
-            /* MESSAGE CONTENT */
+            /* Content area */
 
             const contentArea =
                 document.createElement('div');
@@ -1163,7 +1345,7 @@
             );
 
 
-            /* SENDER NAME */
+            /* Sender name */
 
             if (style === 'theirs') {
 
@@ -1182,7 +1364,7 @@
             }
 
 
-            /* MESSAGE BUBBLE */
+            /* Message */
 
             const bubble =
                 document.createElement('div');
@@ -1191,26 +1373,66 @@
 
             bubble.textContent = text;
 
-            contentArea.appendChild(
-                bubble
-            );
+            contentArea.appendChild(bubble);
 
 
-            /* TIMESTAMP */
+            /* Timestamp */
 
             const timeLabel =
                 document.createElement('div');
 
-            timeLabel.classList.add(
-                'timestamp'
-            );
+            timeLabel.classList.add('timestamp');
 
             timeLabel.textContent = time;
 
-            contentArea.appendChild(
-                timeLabel
+            contentArea.appendChild(timeLabel);
+
+
+            /* Reaction bar */
+
+            const reactionBar =
+                document.createElement('div');
+
+            reactionBar.classList.add(
+                'reaction-bar'
             );
 
+            reactionBar.id =
+                `reactions-bar-${msgId}`;
+
+
+            /* Quick reactions */
+
+            const quickReactions = [
+                '👍',
+                '❤️',
+                '😂'
+            ];
+
+            quickReactions.forEach(emoji => {
+
+                const trigger =
+                    document.createElement('button');
+
+                trigger.classList.add(
+                    'reaction-trigger-btn'
+                );
+
+                trigger.textContent = emoji;
+
+                trigger.onclick = () =>
+                    emitReactionToggle(
+                        msgId,
+                        emoji
+                    );
+
+                reactionBar.appendChild(trigger);
+            });
+
+
+            contentArea.appendChild(
+                reactionBar
+            );
 
             wrapper.appendChild(
                 contentArea
@@ -1220,13 +1442,76 @@
                 wrapper
             );
 
+
+            /* Group saved reactions */
+
+            const grouped = {};
+
+            reactionsArray.forEach(reaction => {
+
+                if (!grouped[reaction.emoji]) {
+                    grouped[reaction.emoji] = [];
+                }
+
+                grouped[reaction.emoji].push(
+                    reaction.username
+                );
+            });
+
+
+            /* Render saved reactions */
+
+            Object.keys(grouped).forEach(emoji => {
+
+                const badge =
+                    document.createElement('div');
+
+                badge.classList.add(
+                    'reaction-badge'
+                );
+
+                badge.id =
+                    `badge-${msgId}-${emoji}`;
+
+                badge.setAttribute(
+                    'data-users',
+                    JSON.stringify(
+                        grouped[emoji]
+                    )
+                );
+
+                badge.innerHTML =
+                    `${emoji} <span>${grouped[emoji].length}</span>`;
+
+                if (
+                    grouped[emoji]
+                        .includes(currentUser)
+                ) {
+
+                    badge.classList.add('active');
+                }
+
+                badge.onclick = () =>
+                    emitReactionToggle(
+                        msgId,
+                        emoji
+                    );
+
+                reactionBar.appendChild(
+                    badge
+                );
+            });
+
+
+            /* Scroll to latest message */
+
             chatWindow.scrollTop =
                 chatWindow.scrollHeight;
         }
 
 
         /* =========================================
-           SWITCH CHAT ROOM
+           SWITCH ROOM
         ========================================= */
 
         function switchRoom(
@@ -1237,7 +1522,6 @@
             if (newRoomName === activeRoom) {
                 return;
             }
-
 
             const oldActiveBtn =
                 document.querySelector(
@@ -1250,9 +1534,7 @@
                 );
             }
 
-
             activeRoom = newRoomName;
-
 
             const currentActiveBtn =
                 document.getElementById(
@@ -1265,13 +1547,11 @@
                 );
             }
 
-
             document.getElementById(
                 'current-room-title'
             ).textContent =
                 explicitTitle ||
                 `# ${newRoomName}`;
-
 
             chatWindow.innerHTML = '';
 
@@ -1315,7 +1595,7 @@
 
 
         /* =========================================
-           DETECT TYPING
+           TYPING EVENT
         ========================================= */
 
         messageInput.addEventListener(
@@ -1331,22 +1611,23 @@
                     );
                 }
 
-
                 clearTimeout(
                     typingTimeout
                 );
 
-
                 typingTimeout =
-                    setTimeout(() => {
+                    setTimeout(
+                        () => {
 
-                        isCurrentlyTyping = false;
+                            isCurrentlyTyping = false;
 
-                        sendTypingSignal(
-                            'stopped_typing'
-                        );
+                            sendTypingSignal(
+                                'stopped_typing'
+                            );
 
-                    }, 1500);
+                        },
+                        1500
+                    );
             }
         );
 
@@ -1359,7 +1640,6 @@
 
             const messageText =
                 messageInput.value.trim();
-
 
             if (
                 messageText !== "" &&
@@ -1377,6 +1657,17 @@
                     );
 
 
+                /* Generate unique message ID */
+
+                const generatedMessageId =
+                    'msg_' +
+                    Date.now() +
+                    '_' +
+                    Math.random()
+                        .toString(36)
+                        .substr(2, 5);
+
+
                 clearTimeout(
                     typingTimeout
                 );
@@ -1392,13 +1683,20 @@
 
                     type: 'chat_message',
 
-                    username: currentUser,
+                    message_id:
+                        generatedMessageId,
 
-                    avatar: currentAvatar,
+                    username:
+                        currentUser,
 
-                    text: messageText,
+                    avatar:
+                        currentAvatar,
 
-                    time: currentTime
+                    text:
+                        messageText,
+
+                    time:
+                        currentTime
                 };
 
 
@@ -1408,11 +1706,13 @@
 
 
                 renderBubble(
+                    generatedMessageId,
                     currentUser,
                     messageText,
                     currentTime,
                     'mine',
-                    currentAvatar
+                    currentAvatar,
+                    []
                 );
 
 
@@ -1432,12 +1732,12 @@
 
 
         /* =========================================
-           ENTER KEY TO SEND
+           ENTER KEY
         ========================================= */
 
         messageInput.addEventListener(
             'keypress',
-            (event) => {
+            event => {
 
                 if (event.key === 'Enter') {
                     dispatchMessage();
