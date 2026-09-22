@@ -3,12 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Secure Chat with Message Reactions</title>
+    <title>Secure Chat Suite</title>
 
     <style>
         /* =========================================
@@ -96,7 +93,7 @@
         }
 
         /* =========================================
-           AUTH BUTTONS
+           AUTH BUTTONS / MESSAGES
         ========================================= */
 
         .auth-btn {
@@ -128,10 +125,6 @@
             cursor: pointer;
             font-weight: bold;
         }
-
-        /* =========================================
-           MESSAGES
-        ========================================= */
 
         .error-msg {
             color: #dc3545;
@@ -275,6 +268,7 @@
             display: flex;
             flex-direction: column;
             background: #fafafa;
+            position: relative;
         }
 
         .chat-header {
@@ -413,7 +407,7 @@
         }
 
         /* =========================================
-           TYPING INDICATOR
+           TYPING / MESSAGE INPUT
         ========================================= */
 
         #typing-status {
@@ -426,35 +420,98 @@
             align-items: center;
         }
 
-        /* =========================================
-           MESSAGE INPUT
-        ========================================= */
-
         .input-area {
             display: flex;
             border-top: 1px solid #eee;
             padding: 10px;
             background: white;
+            align-items: center;
+            position: relative;
         }
 
         #message-input {
             flex: 1;
-            padding: 12px;
+            padding: 12px 40px 12px 12px;
             border: 1px solid #ddd;
             border-radius: 20px;
             outline: none;
             font-size: 0.95rem;
         }
 
+        #emoji-toggle-btn {
+            position: absolute;
+            right: 95px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+        }
+
         #send-button {
             background: #007bff;
             color: white;
             border: none;
-            padding: 0 20px;
+            padding: 12px 20px;
             margin-left: 8px;
             border-radius: 20px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        /* =========================================
+           EMOJI PICKER
+        ========================================= */
+
+        .emoji-picker-panel {
+            position: absolute;
+            bottom: 65px;
+            right: 20px;
+            width: 280px;
+            height: 200px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .emoji-picker-header {
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #f5f5f5;
+            border-bottom: 1px solid #eee;
+            color: #666;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .emoji-picker-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            align-content: start;
+        }
+
+        .emoji-item {
+            font-size: 1.3rem;
+            text-align: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.1s;
+            user-select: none;
+        }
+
+        .emoji-item:hover {
+            background: #e3f2fd;
         }
     </style>
 </head>
@@ -463,7 +520,7 @@
 
     <!-- =========================================
          AUTHENTICATION CONTAINER
-    ========================================= -->
+    ========================================== -->
 
     <div id="auth-box" class="auth-container">
 
@@ -474,7 +531,6 @@
 
         <div class="form-group">
             <label for="username">Username</label>
-
             <input
                 type="text"
                 id="username"
@@ -485,7 +541,6 @@
 
         <div class="form-group">
             <label for="password">Password</label>
-
             <input
                 type="password"
                 id="password"
@@ -493,7 +548,7 @@
             >
         </div>
 
-        <!-- Avatar Picker -->
+        <!-- Avatar Selection -->
 
         <div
             class="form-group"
@@ -550,10 +605,7 @@
             Login
         </button>
 
-        <p
-            class="toggle-text"
-            id="toggle-area"
-        >
+        <p class="toggle-text" id="toggle-area">
             Do not have an account?
             <span onclick="toggleAuthMode(true)">
                 Register here
@@ -562,10 +614,9 @@
 
     </div>
 
-
     <!-- =========================================
          CHAT CONTAINER
-    ========================================= -->
+    ========================================== -->
 
     <div
         id="chat-box"
@@ -603,8 +654,7 @@
 
             </div>
 
-
-            <!-- ROOMS -->
+            <!-- Rooms -->
 
             <div class="section-title">
                 Rooms
@@ -621,7 +671,9 @@
                     onclick="switchRoom('general')"
                 >
                     # general
-                    <span id="count-general">(0)</span>
+                    <span id="count-general">
+                        (0)
+                    </span>
                 </button>
 
                 <button
@@ -630,7 +682,9 @@
                     onclick="switchRoom('gaming')"
                 >
                     # gaming
-                    <span id="count-gaming">(0)</span>
+                    <span id="count-gaming">
+                        (0)
+                    </span>
                 </button>
 
                 <button
@@ -639,13 +693,14 @@
                     onclick="switchRoom('music')"
                 >
                     # music
-                    <span id="count-music">(0)</span>
+                    <span id="count-music">
+                        (0)
+                    </span>
                 </button>
 
             </div>
 
-
-            <!-- DIRECT MESSAGES -->
+            <!-- Direct Messages -->
 
             <div class="section-title">
                 Direct Messages 💬
@@ -658,8 +713,9 @@
 
         </div>
 
-
-        <!-- MAIN CHAT -->
+        <!-- =====================================
+             MAIN CHAT AREA
+        ====================================== -->
 
         <div class="main-chat">
 
@@ -674,6 +730,8 @@
 
             <div id="typing-status"></div>
 
+            <!-- Message Input -->
+
             <div class="input-area">
 
                 <input
@@ -683,7 +741,9 @@
                     autocomplete="off"
                 >
 
-                <button id="send-button">
+                <button
+                    id="send-button"
+                >
                     Send
                 </button>
 
@@ -693,23 +753,21 @@
 
     </div>
 
-
     <!-- =========================================
          JAVASCRIPT
-    ========================================= -->
+    ========================================== -->
 
     <script>
 
         /* =========================================
            GLOBAL VARIABLES
-        ========================================= */
+        ========================================== */
 
         let currentUser = null;
         let currentAvatar = '🦊';
         let selectedRegisterAvatar = '🦊';
 
         let activeRoom = 'general';
-
         let socket = null;
 
         let isRegisterMode = false;
@@ -717,33 +775,122 @@
         let typingTimeout;
         let isCurrentlyTyping = false;
 
+        /* =========================================
+           DOM ELEMENT REFERENCES
+        ========================================== */
+
+        const chatWindow = document.getElementById('chat-window');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+
+        const typingStatus = document.getElementById('typing-status');
+
+        const errorBox = document.getElementById('error-box');
+        const successBox = document.getElementById('success-box');
+
+        const emojiPicker = document.getElementById('emoji-picker');
 
         /* =========================================
-           DOM REFERENCES
-        ========================================= */
+           EMOJI LIBRARY
+        ========================================== */
 
-        const chatWindow =
-            document.getElementById('chat-window');
+        const emojiLibrary = [
+            '😀', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉',
+            '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋',
+            '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎',
+            '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕',
+            '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢',
+            '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵',
+            '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔',
+            '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄',
+            '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤',
+            '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷',
+            '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺',
+            '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖',
+            '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀',
+            '😿', '😾',
 
-        const messageInput =
-            document.getElementById('message-input');
+            '👋', '🤚', '🖐', '✋', '🖖', '👌', '🤌', '🤏',
+            '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆',
+            '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛',
+            '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️',
+            '💅', '🤳', '💪', '🦾', '🦿', '🦵', '🦶', '👂',
+            '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀',
+            '👁', '👅', '👄', '💋', '🩸',
 
-        const sendButton =
-            document.getElementById('send-button');
+            '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+            '🤎', '💔', '❤️‍🔥', '❤️‍🩹', '❣️', '💕', '💞',
+            '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️',
+            '☪️', '🕉', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️',
+            '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍',
+            '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️',
+            '🔥', '✨', '🌟', '⭐', '💥', '🌪', '🌈', '☀️',
+            '🌤', '⛅', '🌥', '☁️', '🌦', '🌧', '⛈', '🌩',
+            '🌨', '❄️', '☃️', '⛄', '🌬', '💨', '💧', '💦',
+            '🌊'
+        ];
 
-        const typingStatus =
-            document.getElementById('typing-status');
+        /* =========================================
+           EMOJI PICKER
+        ========================================== */
 
-        const errorBox =
-            document.getElementById('error-box');
+        function renderEmojiPickerGrid() {
 
-        const successBox =
-            document.getElementById('success-box');
+            const grid = document.getElementById('emoji-grid');
 
+            grid.innerHTML = '';
+
+            emojiLibrary.forEach(emoji => {
+
+                const el = document.createElement('div');
+
+                el.classList.add('emoji-item');
+                el.textContent = emoji;
+
+                el.onclick = (event) => {
+                    appendEmojiToInput(event, emoji);
+                };
+
+                grid.appendChild(el);
+            });
+        }
+
+        function toggleEmojiPicker(event) {
+
+            event.stopPropagation();
+
+            if (emojiPicker.style.display === 'flex') {
+
+                emojiPicker.style.display = 'none';
+
+            } else {
+
+                emojiPicker.style.display = 'flex';
+            }
+        }
+
+        function appendEmojiToInput(event, emoji) {
+
+            event.stopPropagation();
+
+            messageInput.value += emoji;
+            messageInput.focus();
+        }
+
+        document.addEventListener('click', (event) => {
+
+            if (
+                emojiPicker.style.display === 'flex' &&
+                !emojiPicker.contains(event.target) &&
+                event.target.id !== 'emoji-toggle-btn'
+            ) {
+                emojiPicker.style.display = 'none';
+            }
+        });
 
         /* =========================================
            AVATAR SELECTION
-        ========================================= */
+        ========================================== */
 
         function selectAvatar(element, emojiValue) {
 
@@ -759,10 +906,9 @@
             selectedRegisterAvatar = emojiValue;
         }
 
-
         /* =========================================
-           AUTHENTICATION MODE
-        ========================================= */
+           LOGIN / REGISTER MODE
+        ========================================== */
 
         function toggleAuthMode(toRegister) {
 
@@ -776,40 +922,37 @@
 
             if (isRegisterMode) {
 
-                document.getElementById('auth-title')
-                    .textContent = 'Create Account';
+                document.getElementById('auth-title').textContent =
+                    'Create Account';
 
-                document.getElementById('auth-submit-btn')
-                    .textContent = 'Register';
+                document.getElementById('auth-submit-btn').textContent =
+                    'Register';
 
-                document.getElementById('avatar-picker-section')
-                    .style.display = 'block';
+                document.getElementById('avatar-picker-section').style.display =
+                    'block';
 
-                document.getElementById('toggle-area')
-                    .innerHTML =
+                document.getElementById('toggle-area').innerHTML =
                     'Already have an account? Login here';
 
             } else {
 
-                document.getElementById('auth-title')
-                    .textContent = 'Login to Chat';
+                document.getElementById('auth-title').textContent =
+                    'Login to Chat';
 
-                document.getElementById('auth-submit-btn')
-                    .textContent = 'Login';
+                document.getElementById('auth-submit-btn').textContent =
+                    'Login';
 
-                document.getElementById('avatar-picker-section')
-                    .style.display = 'none';
+                document.getElementById('avatar-picker-section').style.display =
+                    'none';
 
-                document.getElementById('toggle-area')
-                    .innerHTML =
+                document.getElementById('toggle-area').innerHTML =
                     'Do not have an account? Register here';
             }
         }
 
-
         /* =========================================
-           LOGIN / REGISTRATION
-        ========================================= */
+           AUTHENTICATION SUBMISSION
+        ========================================== */
 
         async function submitAuth() {
 
@@ -817,58 +960,50 @@
             successBox.style.display = 'none';
 
             const usernameVal =
-                document.getElementById('username')
-                    .value
-                    .trim();
+                document.getElementById('username').value.trim();
 
             const passwordVal =
-                document.getElementById('password')
-                    .value;
+                document.getElementById('password').value;
 
             if (!usernameVal || !passwordVal) {
 
                 showError('Please fill out all fields.');
-
                 return;
             }
 
             const endpoint =
-                isRegisterMode
-                    ? '/register'
-                    : '/login';
+                isRegisterMode ? '/register' : '/login';
 
-            const bodyPayload =
-                isRegisterMode
-                    ? {
-                        username: usernameVal,
-                        password: passwordVal,
-                        avatar: selectedRegisterAvatar
-                    }
-                    : {
-                        username: usernameVal,
-                        password: passwordVal
-                    };
+            const bodyPayload = isRegisterMode
+                ? {
+                    username: usernameVal,
+                    password: passwordVal,
+                    avatar: selectedRegisterAvatar
+                }
+                : {
+                    username: usernameVal,
+                    password: passwordVal
+                };
 
             try {
 
-                const response =
-                    await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type':
-                                'application/json'
-                        },
-                        body: JSON.stringify(bodyPayload)
-                    });
+                const response = await fetch(endpoint, {
 
-                const data =
-                    await response.json();
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                const data = await response.json();
 
                 if (!response.ok) {
 
                     showError(
-                        data.error ||
-                        'Something went wrong.'
+                        data.error || 'Something went wrong.'
                     );
 
                     return;
@@ -886,14 +1021,12 @@
                 } else {
 
                     currentUser = data.username;
-
-                    currentAvatar =
-                        data.avatar || '🦊';
+                    currentAvatar = data.avatar || '🦊';
 
                     initializeChatDashboard();
                 }
 
-            } catch (err) {
+            } catch (error) {
 
                 showError(
                     'Could not connect to authentication server.'
@@ -901,37 +1034,35 @@
             }
         }
 
-
         /* =========================================
            ERROR HANDLING
-        ========================================= */
+        ========================================== */
 
-        function showError(msg) {
+        function showError(message) {
 
-            errorBox.textContent = msg;
+            errorBox.textContent = message;
             errorBox.style.display = 'block';
         }
 
-
         /* =========================================
-           INITIALIZE CHAT DASHBOARD
-        ========================================= */
+           CHAT DASHBOARD INITIALIZATION
+        ========================================== */
 
         function initializeChatDashboard() {
 
-            document.getElementById('auth-box')
-                .style.display = 'none';
+            document.getElementById('auth-box').style.display = 'none';
 
-            document.getElementById('chat-box')
-                .style.display = 'flex';
+            document.getElementById('chat-box').style.display = 'flex';
 
-            document.getElementById('welcome-label')
-                .textContent = currentUser;
+            document.getElementById('welcome-label').textContent =
+                currentUser;
 
-            document.getElementById('my-profile-avatar')
-                .textContent = currentAvatar;
+            document.getElementById('my-profile-avatar').textContent =
+                currentAvatar;
 
             chatWindow.innerHTML = '';
+
+            renderEmojiPickerGrid();
 
             const protocol =
                 window.location.protocol === 'https:'
@@ -939,16 +1070,10 @@
                     : 'ws:';
 
             const host =
-                window.location.host ||
-                'localhost:3000';
+                window.location.host || 'localhost:3000';
 
             socket =
-                new WebSocket(
-                    `${protocol}//${host}`
-                );
-
-
-            /* WebSocket connected */
+                new WebSocket(`${protocol}//${host}`);
 
             socket.onopen = () => {
 
@@ -968,32 +1093,22 @@
                 );
             };
 
-
-            /* WebSocket messages */
-
             socket.onmessage = (event) => {
 
-                const data =
-                    JSON.parse(event.data);
-
-
-                /* State update */
+                const data = JSON.parse(event.data);
 
                 if (data.type === 'state_update') {
 
-                    document.getElementById(
-                        'count-general'
-                    ).textContent =
+                    document.getElementById('count-general')
+                        .textContent =
                         `(${data.counts['general'] || 0})`;
 
-                    document.getElementById(
-                        'count-gaming'
-                    ).textContent =
+                    document.getElementById('count-gaming')
+                        .textContent =
                         `(${data.counts['gaming'] || 0})`;
 
-                    document.getElementById(
-                        'count-music'
-                    ).textContent =
+                    document.getElementById('count-music')
+                        .textContent =
                         `(${data.counts['music'] || 0})`;
 
                     updateOnlineUsersList(data.users);
@@ -1001,34 +1116,28 @@
                     return;
                 }
 
-
-                /* Chat history */
-
                 if (data.type === 'chat_history') {
 
-                    data.messages.forEach(msg => {
+                    data.messages.forEach(message => {
 
                         const style =
-                            msg.username === currentUser
+                            message.username === currentUser
                                 ? 'mine'
                                 : 'theirs';
 
                         renderBubble(
-                            msg.message_id,
-                            msg.username,
-                            msg.text,
-                            msg.time,
+                            message.message_id,
+                            message.username,
+                            message.text,
+                            message.time,
                             style,
-                            msg.avatar,
-                            msg.reactions
+                            message.avatar,
+                            message.reactions
                         );
                     });
 
                     return;
                 }
-
-
-                /* Live reaction updates */
 
                 if (data.type === 'toggle_reaction') {
 
@@ -1041,9 +1150,6 @@
                     return;
                 }
 
-
-                /* Typing indicator */
-
                 if (data.type === 'typing') {
 
                     typingStatus.textContent =
@@ -1052,16 +1158,12 @@
                     return;
                 }
 
-
                 if (data.type === 'stopped_typing') {
 
                     typingStatus.textContent = '';
 
                     return;
                 }
-
-
-                /* New chat message */
 
                 if (data.type === 'chat_message') {
 
@@ -1078,10 +1180,9 @@
             };
         }
 
-
         /* =========================================
            ONLINE USERS
-        ========================================= */
+        ========================================== */
 
         function updateOnlineUsersList(usersList) {
 
@@ -1118,11 +1219,12 @@
                     <span class="status-dot"></span>
                 `;
 
-                userBtn.onclick = () =>
+                userBtn.onclick = () => {
                     switchRoom(
                         dmRoomId,
                         `DM with ${user.username}`
                     );
+                };
 
                 if (activeRoom === dmRoomId) {
                     userBtn.classList.add('active');
@@ -1132,10 +1234,9 @@
             });
         }
 
-
         /* =========================================
            LOGOUT
-        ========================================= */
+        ========================================== */
 
         function logout() {
 
@@ -1146,19 +1247,20 @@
             currentUser = null;
             activeRoom = 'general';
 
-            document.getElementById('chat-box')
-                .style.display = 'none';
+            emojiPicker.style.display = 'none';
 
-            document.getElementById('auth-box')
-                .style.display = 'block';
+            document.getElementById('chat-box').style.display =
+                'none';
+
+            document.getElementById('auth-box').style.display =
+                'block';
 
             toggleAuthMode(false);
         }
 
-
         /* =========================================
-           REACTION TOGGLE
-        ========================================= */
+           REACTIONS
+        ========================================== */
 
         function emitReactionToggle(msgId, emojiStr) {
 
@@ -1168,15 +1270,17 @@
             ) {
 
                 const payload = {
+
                     type: 'toggle_reaction',
+
                     message_id: msgId,
+
                     username: currentUser,
+
                     emoji: emojiStr
                 };
 
-                socket.send(
-                    JSON.stringify(payload)
-                );
+                socket.send(JSON.stringify(payload));
 
                 updateBubbleReactionsLocally(
                     msgId,
@@ -1185,11 +1289,6 @@
                 );
             }
         }
-
-
-        /* =========================================
-           LOCAL REACTION UPDATE
-        ========================================= */
 
         function updateBubbleReactionsLocally(
             msgId,
@@ -1211,30 +1310,22 @@
                     `badge-${msgId}-${emojiStr}`
                 );
 
-
-            /* Existing reaction */
-
             if (existingBadge) {
 
-                let users =
-                    JSON.parse(
-                        existingBadge.getAttribute(
-                            'data-users'
-                        ) || '[]'
-                    );
+                let users = JSON.parse(
+                    existingBadge.getAttribute('data-users') || '[]'
+                );
 
                 if (users.includes(clickingUser)) {
 
-                    users =
-                        users.filter(
-                            user => user !== clickingUser
-                        );
+                    users = users.filter(
+                        user => user !== clickingUser
+                    );
 
                 } else {
 
                     users.push(clickingUser);
                 }
-
 
                 if (users.length === 0) {
 
@@ -1260,9 +1351,6 @@
                     }
                 }
 
-
-            /* New reaction */
-
             } else {
 
                 const badge =
@@ -1282,23 +1370,21 @@
                     `${emojiStr} <span>1</span>`;
 
                 if (clickingUser === currentUser) {
+
                     badge.classList.add('active');
                 }
 
-                badge.onclick = () =>
-                    emitReactionToggle(
-                        msgId,
-                        emojiStr
-                    );
+                badge.onclick = () => {
+                    emitReactionToggle(msgId, emojiStr);
+                };
 
                 trayContainer.appendChild(badge);
             }
         }
 
-
         /* =========================================
            RENDER MESSAGE BUBBLE
-        ========================================= */
+        ========================================== */
 
         function renderBubble(
             msgId,
@@ -1321,7 +1407,6 @@
             wrapper.id =
                 `msg-wrapper-${msgId}`;
 
-
             /* Avatar */
 
             const avatarDiv =
@@ -1334,8 +1419,7 @@
 
             wrapper.appendChild(avatarDiv);
 
-
-            /* Content area */
+            /* Message Content */
 
             const contentArea =
                 document.createElement('div');
@@ -1344,8 +1428,7 @@
                 'msg-content-area'
             );
 
-
-            /* Sender name */
+            /* Sender Name */
 
             if (style === 'theirs') {
 
@@ -1363,8 +1446,7 @@
                 );
             }
 
-
-            /* Message */
+            /* Message Bubble */
 
             const bubble =
                 document.createElement('div');
@@ -1375,20 +1457,22 @@
 
             contentArea.appendChild(bubble);
 
-
             /* Timestamp */
 
             const timeLabel =
                 document.createElement('div');
 
-            timeLabel.classList.add('timestamp');
+            timeLabel.classList.add(
+                'timestamp'
+            );
 
             timeLabel.textContent = time;
 
-            contentArea.appendChild(timeLabel);
+            contentArea.appendChild(
+                timeLabel
+            );
 
-
-            /* Reaction bar */
+            /* Reaction Bar */
 
             const reactionBar =
                 document.createElement('div');
@@ -1399,9 +1483,6 @@
 
             reactionBar.id =
                 `reactions-bar-${msgId}`;
-
-
-            /* Quick reactions */
 
             const quickReactions = [
                 '👍',
@@ -1420,15 +1501,17 @@
 
                 trigger.textContent = emoji;
 
-                trigger.onclick = () =>
+                trigger.onclick = () => {
                     emitReactionToggle(
                         msgId,
                         emoji
                     );
+                };
 
-                reactionBar.appendChild(trigger);
+                reactionBar.appendChild(
+                    trigger
+                );
             });
-
 
             contentArea.appendChild(
                 reactionBar
@@ -1442,8 +1525,7 @@
                 wrapper
             );
 
-
-            /* Group saved reactions */
+            /* Existing Reactions */
 
             const grouped = {};
 
@@ -1457,9 +1539,6 @@
                     reaction.username
                 );
             });
-
-
-            /* Render saved reactions */
 
             Object.keys(grouped).forEach(emoji => {
 
@@ -1475,44 +1554,39 @@
 
                 badge.setAttribute(
                     'data-users',
-                    JSON.stringify(
-                        grouped[emoji]
-                    )
+                    JSON.stringify(grouped[emoji])
                 );
 
                 badge.innerHTML =
                     `${emoji} <span>${grouped[emoji].length}</span>`;
 
                 if (
-                    grouped[emoji]
-                        .includes(currentUser)
+                    grouped[emoji].includes(
+                        currentUser
+                    )
                 ) {
-
                     badge.classList.add('active');
                 }
 
-                badge.onclick = () =>
+                badge.onclick = () => {
                     emitReactionToggle(
                         msgId,
                         emoji
                     );
+                };
 
                 reactionBar.appendChild(
                     badge
                 );
             });
 
-
-            /* Scroll to latest message */
-
             chatWindow.scrollTop =
                 chatWindow.scrollHeight;
         }
 
-
         /* =========================================
-           SWITCH ROOM
-        ========================================= */
+           ROOM SWITCHING
+        ========================================== */
 
         function switchRoom(
             newRoomName,
@@ -1557,6 +1631,7 @@
 
             typingStatus.textContent = '';
 
+            emojiPicker.style.display = 'none';
 
             if (
                 socket &&
@@ -1572,10 +1647,9 @@
             }
         }
 
-
         /* =========================================
-           TYPING SIGNAL
-        ========================================= */
+           TYPING INDICATOR
+        ========================================== */
 
         function sendTypingSignal(statusType) {
 
@@ -1592,11 +1666,6 @@
                 );
             }
         }
-
-
-        /* =========================================
-           TYPING EVENT
-        ========================================= */
 
         messageInput.addEventListener(
             'input',
@@ -1616,25 +1685,22 @@
                 );
 
                 typingTimeout =
-                    setTimeout(
-                        () => {
+                    setTimeout(() => {
 
-                            isCurrentlyTyping = false;
+                        isCurrentlyTyping =
+                            false;
 
-                            sendTypingSignal(
-                                'stopped_typing'
-                            );
+                        sendTypingSignal(
+                            'stopped_typing'
+                        );
 
-                        },
-                        1500
-                    );
+                    }, 1500);
             }
         );
 
-
         /* =========================================
            SEND MESSAGE
-        ========================================= */
+        ========================================== */
 
         function dispatchMessage() {
 
@@ -1656,9 +1722,6 @@
                         }
                     );
 
-
-                /* Generate unique message ID */
-
                 const generatedMessageId =
                     'msg_' +
                     Date.now() +
@@ -1666,7 +1729,6 @@
                     Math.random()
                         .toString(36)
                         .substr(2, 5);
-
 
                 clearTimeout(
                     typingTimeout
@@ -1678,6 +1740,8 @@
                     'stopped_typing'
                 );
 
+                emojiPicker.style.display =
+                    'none';
 
                 const payload = {
 
@@ -1699,11 +1763,9 @@
                         currentTime
                 };
 
-
                 socket.send(
                     JSON.stringify(payload)
                 );
-
 
                 renderBubble(
                     generatedMessageId,
@@ -1715,29 +1777,22 @@
                     []
                 );
 
-
                 messageInput.value = '';
             }
         }
 
-
         /* =========================================
-           SEND BUTTON
-        ========================================= */
+           EVENT LISTENERS
+        ========================================== */
 
         sendButton.addEventListener(
             'click',
             dispatchMessage
         );
 
-
-        /* =========================================
-           ENTER KEY
-        ========================================= */
-
         messageInput.addEventListener(
             'keypress',
-            event => {
+            (event) => {
 
                 if (event.key === 'Enter') {
                     dispatchMessage();
