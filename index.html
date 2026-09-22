@@ -3,337 +3,591 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Secure Real-Time Chat</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Secure DM Chat App</title>
 
     <style>
-        /* ==============================
+
+        /* =========================================
            GENERAL PAGE STYLING
-        ============================== */
+        ========================================= */
 
         body {
             font-family: sans-serif;
             background-color: #f4f6f9;
+
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+
             height: 100vh;
             margin: 0;
         }
 
 
-        /* ==============================
-           AUTHENTICATION
-        ============================== */
+        /* =========================================
+           AUTHENTICATION CONTAINER
+        ========================================= */
 
         .auth-container {
             width: 100%;
             max-width: 380px;
+
             background: white;
+
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.1);
+
             padding: 30px;
+
             box-sizing: border-box;
         }
 
+
         .auth-container h3 {
             margin-top: 0;
+
             text-align: center;
+
             color: #333;
+
             font-size: 1.4rem;
         }
+
+
+        /* =========================================
+           FORM GROUP
+        ========================================= */
 
         .form-group {
             margin-bottom: 15px;
         }
 
+
         .form-group label {
             display: block;
+
             margin-bottom: 5px;
+
             font-size: 0.85rem;
+
             color: #666;
+
             font-weight: bold;
         }
 
+
         .form-group input {
             width: 100%;
+
             padding: 10px;
+
             border: 1px solid #ddd;
+
             border-radius: 6px;
+
             box-sizing: border-box;
+
             font-size: 0.95rem;
+
             outline: none;
         }
+
 
         .form-group input:focus {
             border-color: #007bff;
         }
 
+
+        /* =========================================
+           AUTH BUTTON
+        ========================================= */
+
         .auth-btn {
             width: 100%;
+
             background: #007bff;
+
             color: white;
+
             border: none;
+
             padding: 12px;
+
             border-radius: 6px;
+
             font-size: 1rem;
+
             font-weight: bold;
+
             cursor: pointer;
+
             margin-top: 10px;
         }
+
 
         .auth-btn:hover {
             background: #0056b3;
         }
 
+
+        /* =========================================
+           AUTH TOGGLE
+        ========================================= */
+
         .toggle-text {
             text-align: center;
+
             font-size: 0.85rem;
+
             color: #666;
+
             margin-top: 15px;
         }
 
+
         .toggle-text span {
             color: #007bff;
+
             cursor: pointer;
+
             font-weight: bold;
         }
+
+
+        /* =========================================
+           ERROR / SUCCESS MESSAGES
+        ========================================= */
 
         .error-msg {
             color: #dc3545;
+
             font-size: 0.85rem;
+
             margin-bottom: 10px;
+
             text-align: center;
+
             display: none;
         }
+
 
         .success-msg {
             color: #28a745;
+
             font-size: 0.85rem;
+
             margin-bottom: 10px;
+
             text-align: center;
+
             display: none;
         }
 
 
-        /* ==============================
-           CHAT CONTAINER
-        ============================== */
+        /* =========================================
+           MAIN CHAT CONTAINER
+        ========================================= */
 
         .chat-container {
-            width: 100%;
-            max-width: 450px;
+            width: 90%;
+
+            max-width: 800px;
+
+            height: 80vh;
+
             background: white;
+
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.1);
+
             overflow: hidden;
+
             display: flex;
-            flex-direction: column;
         }
 
 
-        /* ==============================
-           CHAT HEADER
-        ============================== */
+        /* =========================================
+           LEFT SIDEBAR
+        ========================================= */
 
-        .header {
-            background: #007bff;
+        .sidebar {
+            width: 250px;
+
+            background: #2f3640;
+
             color: white;
-            padding: 15px;
+
             display: flex;
+
+            flex-direction: column;
+
+            border-right: 1px solid #ddd;
+        }
+
+
+        /* =========================================
+           SIDEBAR HEADER
+        ========================================= */
+
+        .sidebar-header {
+            padding: 15px;
+
+            background: #1e222b;
+
+            display: flex;
+
             justify-content: space-between;
+
             align-items: center;
         }
 
-        .header h2 {
+
+        .sidebar-header h3 {
             margin: 0;
-            font-size: 1.1rem;
+
+            font-size: 1rem;
+
+            word-break: break-all;
+
+            max-width: 140px;
         }
+
+
+        /* =========================================
+           LOGOUT BUTTON
+        ========================================= */
 
         .logout-btn {
             background: #dc3545;
+
             color: white;
+
             border: none;
-            padding: 6px 12px;
+
+            padding: 5px 10px;
+
             border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
+
+            font-size: 0.75rem;
+
             cursor: pointer;
         }
 
-        .logout-btn:hover {
-            background: #bd2130;
+
+        /* =========================================
+           SIDEBAR SECTION TITLES
+        ========================================= */
+
+        .section-title {
+            font-size: 0.75rem;
+
+            font-weight: bold;
+
+            color: #718093;
+
+            text-transform: uppercase;
+
+            padding: 15px 15px 5px 15px;
+
+            letter-spacing: 1px;
         }
 
 
-        /* ==============================
-           CHAT ROOMS
-        ============================== */
+        /* =========================================
+           SIDEBAR LIST
+        ========================================= */
 
-        .room-bar {
+        .list-container {
             display: flex;
-            background: #e9ecef;
-            border-bottom: 1px solid #ddd;
-            padding: 8px;
-            justify-content: space-around;
+
+            flex-direction: column;
+
+            gap: 2px;
+
+            padding: 0 10px;
         }
 
-        .room-btn {
+
+        /* =========================================
+           SIDEBAR ITEMS
+        ========================================= */
+
+        .item-btn {
             border: none;
-            background: white;
-            padding: 6px 12px;
-            border-radius: 15px;
+
+            background: transparent;
+
+            color: #dcdde1;
+
+            text-align: left;
+
+            padding: 8px 12px;
+
+            border-radius: 6px;
+
             cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #555;
+
+            font-size: 0.9rem;
+
+            transition: background 0.2s;
+
+            display: flex;
+
+            justify-content: space-between;
         }
 
-        .room-btn.active {
+
+        .item-btn:hover {
+            background: #3f4856;
+        }
+
+
+        .item-btn.active {
             background: #007bff;
+
             color: white;
         }
 
 
-        /* ==============================
-           CHAT WINDOW
-        ============================== */
+        /* =========================================
+           MAIN CHAT PANEL
+        ========================================= */
 
-        #chat-window {
-            height: 300px;
-            overflow-y: auto;
-            padding: 15px;
+        .main-chat {
+            flex: 1;
+
             display: flex;
+
             flex-direction: column;
-            gap: 12px;
+
             background: #fafafa;
         }
 
 
-        /* ==============================
-           CHAT BUBBLES
-        ============================== */
+        /* =========================================
+           CHAT HEADER
+        ========================================= */
+
+        .chat-header {
+            padding: 15px;
+
+            background: #fff;
+
+            border-bottom: 1px solid #eee;
+
+            font-weight: bold;
+
+            font-size: 1.1rem;
+
+            color: #333;
+        }
+
+
+        /* =========================================
+           CHAT WINDOW
+        ========================================= */
+
+        #chat-window {
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 15px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+        }
+
+
+        /* =========================================
+           MESSAGE BUBBLES
+        ========================================= */
 
         .bubble-wrapper {
             display: flex;
+
             flex-direction: column;
+
             max-width: 70%;
         }
 
+
         .mine {
             align-self: flex-end;
+
             align-items: flex-end;
         }
 
+
         .theirs {
             align-self: flex-start;
+
             align-items: flex-start;
         }
 
+
         .sender-name {
             font-size: 0.75rem;
+
             color: #666;
+
             margin-bottom: 2px;
+
             font-weight: bold;
         }
 
+
         .bubble {
             padding: 10px 14px;
+
             border-radius: 18px;
+
             word-wrap: break-word;
+
             font-size: 0.95rem;
         }
 
+
         .mine .bubble {
             background: #007bff;
+
             color: white;
+
             border-bottom-right-radius: 2px;
         }
 
+
         .theirs .bubble {
             background: #e9ecef;
+
             color: #333;
+
             border-bottom-left-radius: 2px;
         }
 
+
         .timestamp {
             font-size: 0.7rem;
+
             color: #999;
+
             margin-top: 2px;
         }
 
 
-        /* ==============================
+        /* =========================================
            TYPING STATUS
-        ============================== */
+        ========================================= */
 
         #typing-status {
             height: 20px;
+
             font-size: 0.8rem;
+
             color: #666;
+
             font-style: italic;
+
             padding: 0 15px;
-            background: #fafafa;
+
             display: flex;
+
             align-items: center;
         }
 
 
-        /* ==============================
-           MESSAGE INPUT
-        ============================== */
+        /* =========================================
+           MESSAGE INPUT AREA
+        ========================================= */
 
         .input-area {
             display: flex;
+
             border-top: 1px solid #eee;
+
             padding: 10px;
+
             background: white;
         }
 
+
         #message-input {
             flex: 1;
+
             padding: 12px;
+
             border: 1px solid #ddd;
+
             border-radius: 20px;
+
             outline: none;
+
             font-size: 0.95rem;
         }
 
+
         #send-button {
             background: #007bff;
+
             color: white;
+
             border: none;
+
             padding: 0 20px;
+
             margin-left: 8px;
+
             border-radius: 20px;
+
             font-weight: bold;
+
             cursor: pointer;
         }
 
-        #send-button:hover {
-            background: #0056b3;
-        }
     </style>
 </head>
 
 
 <body>
 
-    <!-- ==============================
-         LOGIN / REGISTRATION
-    ============================== -->
+    <!-- =========================================
+         AUTHENTICATION FORM
+    ========================================= -->
 
-    <div id="auth-box" class="auth-container">
+    <div
+        id="auth-box"
+        class="auth-container"
+    >
 
         <h3 id="auth-title">
             Login to Chat
         </h3>
 
-        <div id="error-box" class="error-msg"></div>
 
-        <div id="success-box" class="success-msg"></div>
+        <div
+            id="error-box"
+            class="error-msg"
+        ></div>
+
+
+        <div
+            id="success-box"
+            class="success-msg"
+        ></div>
 
 
         <!-- USERNAME -->
@@ -371,7 +625,7 @@
         </div>
 
 
-        <!-- LOGIN / REGISTER BUTTON -->
+        <!-- AUTH BUTTON -->
 
         <button
             id="auth-submit-btn"
@@ -382,7 +636,7 @@
         </button>
 
 
-        <!-- TOGGLE LOGIN / REGISTER -->
+        <!-- LOGIN / REGISTER TOGGLE -->
 
         <p
             class="toggle-text"
@@ -398,9 +652,9 @@
     </div>
 
 
-    <!-- ==============================
-         CHAT APPLICATION
-    ============================== -->
+    <!-- =========================================
+         MAIN CHAT INTERFACE
+    ========================================= -->
 
     <div
         id="chat-box"
@@ -408,107 +662,177 @@
         style="display: none;"
     >
 
-        <!-- HEADER -->
+        <!-- =====================================
+             LEFT SIDEBAR
+        ====================================== -->
 
-        <div class="header">
+        <div class="sidebar">
 
-            <h2 id="welcome-label">
-                Live Network Hub 🌐
-            </h2>
+            <!-- SIDEBAR HEADER -->
 
-            <button
-                class="logout-btn"
-                onclick="logout()"
+            <div class="sidebar-header">
+
+                <h3 id="welcome-label">
+                    User
+                </h3>
+
+                <button
+                    class="logout-btn"
+                    onclick="logout()"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+
+            <!-- ROOMS -->
+
+            <div class="section-title">
+                Rooms
+            </div>
+
+
+            <div
+                class="list-container"
+                id="rooms-list"
             >
-                Logout
-            </button>
+
+                <button
+                    class="item-btn active"
+                    id="room-general"
+                    onclick="switchRoom('general')"
+                >
+                    # general
+
+                    <span id="count-general">
+                        (0)
+                    </span>
+                </button>
+
+
+                <button
+                    class="item-btn"
+                    id="room-gaming"
+                    onclick="switchRoom('gaming')"
+                >
+                    # gaming
+
+                    <span id="count-gaming">
+                        (0)
+                    </span>
+                </button>
+
+
+                <button
+                    class="item-btn"
+                    id="room-music"
+                    onclick="switchRoom('music')"
+                >
+                    # music
+
+                    <span id="count-music">
+                        (0)
+                    </span>
+                </button>
+
+            </div>
+
+
+            <!-- DIRECT MESSAGES -->
+
+            <div class="section-title">
+                Direct Messages 💬
+            </div>
+
+
+            <div
+                class="list-container"
+                id="users-list"
+            >
+                <!--
+                    Online user buttons
+                    will be generated dynamically.
+                -->
+            </div>
 
         </div>
 
 
-        <!-- CHAT ROOMS -->
+        <!-- =====================================
+             RIGHT CHAT PANEL
+        ====================================== -->
 
-        <div class="room-bar">
+        <div class="main-chat">
 
-            <button
-                class="room-btn active"
-                onclick="switchRoom('general')"
-                id="btn-general"
+            <!-- CHAT HEADER -->
+
+            <div
+                class="chat-header"
+                id="current-room-title"
             >
-                #general (0)
-            </button>
-
-            <button
-                class="room-btn"
-                onclick="switchRoom('gaming')"
-                id="btn-gaming"
-            >
-                #gaming (0)
-            </button>
-
-            <button
-                class="room-btn"
-                onclick="switchRoom('music')"
-                id="btn-music"
-            >
-                #music (0)
-            </button>
-
-        </div>
+                # general
+            </div>
 
 
-        <!-- CHAT WINDOW -->
+            <!-- CHAT WINDOW -->
 
-        <div id="chat-window"></div>
-
-
-        <!-- TYPING STATUS -->
-
-        <div id="typing-status"></div>
+            <div id="chat-window"></div>
 
 
-        <!-- MESSAGE INPUT -->
+            <!-- TYPING STATUS -->
 
-        <div class="input-area">
+            <div id="typing-status"></div>
 
-            <input
-                type="text"
-                id="message-input"
-                placeholder="Type your message here..."
-                autocomplete="off"
-            >
 
-            <button id="send-button">
-                Send
-            </button>
+            <!-- MESSAGE INPUT -->
+
+            <div class="input-area">
+
+                <input
+                    type="text"
+                    id="message-input"
+                    placeholder="Type your message here..."
+                    autocomplete="off"
+                >
+
+                <button id="send-button">
+                    Send
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
 
-    <!-- ==============================
+    <!-- =========================================
          JAVASCRIPT
-    ============================== -->
+    ========================================= -->
 
     <script>
 
-        /* ==============================
+        /* =========================================
            GLOBAL VARIABLES
-        ============================== */
+        ========================================= */
 
         let currentUser = null;
+
         let activeRoom = 'general';
+
         let socket = null;
+
         let isRegisterMode = false;
 
         let typingTimeout;
+
         let isCurrentlyTyping = false;
 
 
-        /* ==============================
+        /* =========================================
            DOM ELEMENTS
-        ============================== */
+        ========================================= */
 
         const chatWindow =
             document.getElementById('chat-window');
@@ -529,20 +853,24 @@
             document.getElementById('success-box');
 
 
-        /* ==============================
+        /* =========================================
            LOGIN / REGISTER TOGGLE
-        ============================== */
+        ========================================= */
 
         function toggleAuthMode(toRegister) {
 
             isRegisterMode = toRegister;
 
             errorBox.style.display = 'none';
+
             successBox.style.display = 'none';
 
             document.getElementById('username').value = '';
+
             document.getElementById('password').value = '';
 
+
+            /* REGISTER MODE */
 
             if (isRegisterMode) {
 
@@ -562,7 +890,12 @@
                     'Login here' +
                     '</span>';
 
-            } else {
+            }
+
+
+            /* LOGIN MODE */
+
+            else {
 
                 document.getElementById(
                     'auth-title'
@@ -583,15 +916,18 @@
         }
 
 
-        /* ==============================
+        /* =========================================
            LOGIN / REGISTRATION
-        ============================== */
+        ========================================= */
 
         async function submitAuth() {
 
             errorBox.style.display = 'none';
+
             successBox.style.display = 'none';
 
+
+            /* GET USERNAME */
 
             const usernameVal =
                 document.getElementById(
@@ -599,13 +935,15 @@
                 ).value.trim();
 
 
+            /* GET PASSWORD */
+
             const passwordVal =
                 document.getElementById(
                     'password'
                 ).value;
 
 
-            /* VALIDATION */
+            /* VALIDATE INPUT */
 
             if (!usernameVal || !passwordVal) {
 
@@ -617,7 +955,7 @@
             }
 
 
-            /* SELECT ENDPOINT */
+            /* SELECT API ENDPOINT */
 
             const endpoint =
                 isRegisterMode
@@ -626,6 +964,8 @@
 
 
             try {
+
+                /* SEND REQUEST */
 
                 const response =
                     await fetch(
@@ -649,11 +989,13 @@
                     );
 
 
+                /* READ RESPONSE */
+
                 const data =
                     await response.json();
 
 
-                /* SERVER ERROR */
+                /* HANDLE SERVER ERROR */
 
                 if (!response.ok) {
 
@@ -666,24 +1008,25 @@
                 }
 
 
-                /* REGISTRATION SUCCESS */
+                /* REGISTRATION */
 
                 if (isRegisterMode) {
 
                     successBox.textContent =
                         'Account created! You can now log in.';
 
-                    successBox.style.display =
-                        'block';
+                    successBox.style.display = 'block';
 
                     toggleAuthMode(false);
 
-                } else {
+                }
 
-                    /* LOGIN SUCCESS */
 
-                    currentUser =
-                        data.username;
+                /* LOGIN */
+
+                else {
+
+                    currentUser = data.username;
 
                     initializeChatDashboard();
                 }
@@ -699,23 +1042,21 @@
         }
 
 
-        /* ==============================
+        /* =========================================
            DISPLAY ERROR
-        ============================== */
+        ========================================= */
 
-        function showError(message) {
+        function showError(msg) {
 
-            errorBox.textContent =
-                message;
+            errorBox.textContent = msg;
 
-            errorBox.style.display =
-                'block';
+            errorBox.style.display = 'block';
         }
 
 
-        /* ==============================
+        /* =========================================
            INITIALIZE CHAT DASHBOARD
-        ============================== */
+        ========================================= */
 
         function initializeChatDashboard() {
 
@@ -731,8 +1072,7 @@
 
             document.getElementById(
                 'welcome-label'
-            ).textContent =
-                `Hi, ${currentUser} 🌐`;
+            ).textContent = currentUser;
 
 
             chatWindow.innerHTML = '';
@@ -759,11 +1099,23 @@
                 );
 
 
-            /* ==============================
+            /* =====================================
                WEBSOCKET CONNECTED
-            ============================== */
+            ===================================== */
 
             socket.onopen = () => {
+
+                /* Register user identity */
+
+                socket.send(
+                    JSON.stringify({
+                        type: 'init',
+                        username: currentUser
+                    })
+                );
+
+
+                /* Join default room */
 
                 socket.send(
                     JSON.stringify({
@@ -774,9 +1126,9 @@
             };
 
 
-            /* ==============================
-               WEBSOCKET MESSAGE
-            ============================== */
+            /* =====================================
+               WEBSOCKET MESSAGE RECEIVED
+            ===================================== */
 
             socket.onmessage = (event) => {
 
@@ -784,37 +1136,41 @@
                     JSON.parse(event.data);
 
 
-                /* ==========================
-                   ROOM COUNTS
-                ========================== */
+                /* =================================
+                   STATE UPDATE
+                ================================= */
 
-                if (data.type === 'room_counts') {
-
-                    document.getElementById(
-                        'btn-general'
-                    ).textContent =
-                        `#general (${data.counts['general'] || 0})`;
-
+                if (data.type === 'state_update') {
 
                     document.getElementById(
-                        'btn-gaming'
+                        'count-general'
                     ).textContent =
-                        `#gaming (${data.counts['gaming'] || 0})`;
+                        `(${data.counts['general'] || 0})`;
 
 
                     document.getElementById(
-                        'btn-music'
+                        'count-gaming'
                     ).textContent =
-                        `#music (${data.counts['music'] || 0})`;
+                        `(${data.counts['gaming'] || 0})`;
 
+
+                    document.getElementById(
+                        'count-music'
+                    ).textContent =
+                        `(${data.counts['music'] || 0})`;
+
+
+                    updateOnlineUsersList(
+                        data.users
+                    );
 
                     return;
                 }
 
 
-                /* ==========================
+                /* =================================
                    CHAT HISTORY
-                ========================== */
+                ================================= */
 
                 if (data.type === 'chat_history') {
 
@@ -840,9 +1196,9 @@
                 }
 
 
-                /* ==========================
+                /* =================================
                    TYPING
-                ========================== */
+                ================================= */
 
                 if (data.type === 'typing') {
 
@@ -853,56 +1209,188 @@
                 }
 
 
-                /* ==========================
+                /* =================================
                    STOPPED TYPING
-                ========================== */
+                ================================= */
 
                 if (
                     data.type ===
                     'stopped_typing'
                 ) {
 
-                    typingStatus.textContent =
-                        '';
+                    typingStatus.textContent = '';
 
                     return;
                 }
 
 
-                /* ==========================
+                /* =================================
                    CHAT MESSAGE
-                ========================== */
+                ================================= */
 
                 if (
                     data.type ===
                     'chat_message'
                 ) {
 
-                    renderBubble(
-                        data.username,
-                        data.text,
-                        data.time,
-                        'theirs'
-                    );
+                    /*
+                     * Only render incoming messages
+                     * here. The sender already renders
+                     * their own message inside
+                     * dispatchMessage().
+                     */
+
+                    if (
+                        data.username !==
+                        currentUser
+                    ) {
+
+                        renderBubble(
+                            data.username,
+                            data.text,
+                            data.time,
+                            'theirs'
+                        );
+                    }
                 }
+            };
+
+
+            /* =====================================
+               WEBSOCKET ERROR
+            ===================================== */
+
+            socket.onerror = (error) => {
+
+                console.error(
+                    'WebSocket error:',
+                    error
+                );
+            };
+
+
+            /* =====================================
+               WEBSOCKET CLOSED
+            ===================================== */
+
+            socket.onclose = () => {
+
+                console.log(
+                    'WebSocket connection closed.'
+                );
             };
         }
 
 
-        /* ==============================
+        /* =========================================
+           UPDATE ONLINE USERS LIST
+        ========================================= */
+
+        function updateOnlineUsersList(usersList) {
+
+            const usersContainer =
+                document.getElementById(
+                    'users-list'
+                );
+
+
+            usersContainer.innerHTML = '';
+
+
+            usersList.forEach(
+                (user) => {
+
+                    /* Do not display yourself */
+
+                    if (
+                        user === currentUser
+                    ) {
+                        return;
+                    }
+
+
+                    const userBtn =
+                        document.createElement(
+                            'button'
+                        );
+
+
+                    userBtn.classList.add(
+                        'item-btn'
+                    );
+
+
+                    /*
+                     * Create a shared DM room ID.
+                     * Sorting guarantees both users
+                     * generate the same room name.
+                     */
+
+                    const dmRoomId =
+                        [
+                            'dm',
+                            currentUser,
+                            user
+                        ]
+                            .sort()
+                            .join('_');
+
+
+                    userBtn.id =
+                        `room-${dmRoomId}`;
+
+
+                    userBtn.innerHTML =
+                        `👤 ${user}`;
+
+
+                    userBtn.onclick = () =>
+                        switchRoom(
+                            dmRoomId,
+                            `DM with ${user}`
+                        );
+
+
+                    if (
+                        activeRoom ===
+                        dmRoomId
+                    ) {
+
+                        userBtn.classList.add(
+                            'active'
+                        );
+                    }
+
+
+                    usersContainer.appendChild(
+                        userBtn
+                    );
+                }
+            );
+        }
+
+
+        /* =========================================
            LOGOUT
-        ============================== */
+        ========================================= */
 
         function logout() {
 
             if (socket) {
+
                 socket.close();
+
+                socket = null;
             }
 
 
             currentUser = null;
 
             activeRoom = 'general';
+
+            chatWindow.innerHTML = '';
+
+            typingStatus.textContent = '';
 
 
             document.getElementById(
@@ -919,9 +1407,9 @@
         }
 
 
-        /* ==============================
-           RENDER CHAT MESSAGE
-        ============================== */
+        /* =========================================
+           RENDER MESSAGE BUBBLE
+        ========================================= */
 
         function renderBubble(
             user,
@@ -942,7 +1430,7 @@
             );
 
 
-            /* DISPLAY USERNAME */
+            /* Display sender name for others */
 
             if (style === 'theirs') {
 
@@ -951,12 +1439,15 @@
                         'div'
                     );
 
+
                 nameLabel.classList.add(
                     'sender-name'
                 );
 
+
                 nameLabel.textContent =
                     user;
+
 
                 wrapper.appendChild(
                     nameLabel
@@ -964,63 +1455,72 @@
             }
 
 
-            /* MESSAGE BUBBLE */
+            /* Message */
 
             const bubble =
                 document.createElement(
                     'div'
                 );
 
+
             bubble.classList.add(
                 'bubble'
             );
 
+
             bubble.textContent =
                 text;
+
 
             wrapper.appendChild(
                 bubble
             );
 
 
-            /* TIMESTAMP */
+            /* Timestamp */
 
             const timeLabel =
                 document.createElement(
                     'div'
                 );
 
+
             timeLabel.classList.add(
                 'timestamp'
             );
 
+
             timeLabel.textContent =
                 time;
+
 
             wrapper.appendChild(
                 timeLabel
             );
 
 
-            /* ADD MESSAGE TO CHAT */
+            /* Add message to chat */
 
             chatWindow.appendChild(
                 wrapper
             );
 
 
-            /* SCROLL TO BOTTOM */
+            /* Scroll to bottom */
 
             chatWindow.scrollTop =
                 chatWindow.scrollHeight;
         }
 
 
-        /* ==============================
-           SWITCH CHAT ROOM
-        ============================== */
+        /* =========================================
+           SWITCH ROOM / DIRECT MESSAGE
+        ========================================= */
 
-        function switchRoom(newRoomName) {
+        function switchRoom(
+            newRoomName,
+            explicitTitle = null
+        ) {
 
             if (
                 newRoomName ===
@@ -1030,46 +1530,66 @@
             }
 
 
-            /* REMOVE ACTIVE STATE */
+            /* Remove previous active state */
 
-            document.getElementById(
-                `btn-${activeRoom}`
-            ).classList.remove(
-                'active'
-            );
-
-
-            /* ADD ACTIVE STATE */
-
-            document.getElementById(
-                `btn-${newRoomName}`
-            ).classList.add(
-                'active'
-            );
+            const oldActiveBtn =
+                document.querySelector(
+                    '.item-btn.active'
+                );
 
 
-            /* UPDATE ACTIVE ROOM */
+            if (oldActiveBtn) {
+
+                oldActiveBtn.classList.remove(
+                    'active'
+                );
+            }
+
+
+            /* Set new active room */
 
             activeRoom =
                 newRoomName;
 
 
-            /* CLEAR CHAT */
+            /* Highlight selected button */
 
-            chatWindow.innerHTML =
-                '';
-
-
-            typingStatus.textContent =
-                '';
+            const currentActiveBtn =
+                document.getElementById(
+                    `room-${newRoomName}`
+                );
 
 
-            /* JOIN NEW ROOM */
+            if (currentActiveBtn) {
+
+                currentActiveBtn.classList.add(
+                    'active'
+                );
+            }
+
+
+            /* Update title */
+
+            document.getElementById(
+                'current-room-title'
+            ).textContent =
+                explicitTitle ||
+                `# ${newRoomName}`;
+
+
+            /* Clear current chat */
+
+            chatWindow.innerHTML = '';
+
+            typingStatus.textContent = '';
+
+
+            /* Join room through WebSocket */
 
             if (
                 socket &&
                 socket.readyState ===
-                    WebSocket.OPEN
+                WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -1082,9 +1602,9 @@
         }
 
 
-        /* ==============================
+        /* =========================================
            SEND TYPING SIGNAL
-        ============================== */
+        ========================================= */
 
         function sendTypingSignal(
             statusType
@@ -1093,7 +1613,7 @@
             if (
                 socket &&
                 socket.readyState ===
-                    WebSocket.OPEN
+                WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -1106,20 +1626,17 @@
         }
 
 
-        /* ==============================
+        /* =========================================
            TYPING DETECTION
-        ============================== */
+        ========================================= */
 
         messageInput.addEventListener(
             'input',
             () => {
 
-                /* USER STARTED TYPING */
-
                 if (!isCurrentlyTyping) {
 
-                    isCurrentlyTyping =
-                        true;
+                    isCurrentlyTyping = true;
 
                     sendTypingSignal(
                         'typing'
@@ -1127,14 +1644,10 @@
                 }
 
 
-                /* RESET TIMER */
-
                 clearTimeout(
                     typingTimeout
                 );
 
-
-                /* USER STOPPED TYPING */
 
                 typingTimeout =
                     setTimeout(
@@ -1154,9 +1667,9 @@
         );
 
 
-        /* ==============================
+        /* =========================================
            SEND MESSAGE
-        ============================== */
+        ========================================= */
 
         function dispatchMessage() {
 
@@ -1168,10 +1681,8 @@
                 messageText !== '' &&
                 socket &&
                 socket.readyState ===
-                    WebSocket.OPEN
+                WebSocket.OPEN
             ) {
-
-                /* CURRENT TIME */
 
                 const currentTime =
                     new Date().toLocaleTimeString(
@@ -1183,26 +1694,26 @@
                     );
 
 
-                /* STOP TYPING */
+                /* Stop typing */
 
                 clearTimeout(
                     typingTimeout
                 );
 
-                isCurrentlyTyping =
-                    false;
+
+                isCurrentlyTyping = false;
+
 
                 sendTypingSignal(
                     'stopped_typing'
                 );
 
 
-                /* CREATE MESSAGE */
+                /* Build message */
 
                 const payload = {
 
-                    type:
-                        'chat_message',
+                    type: 'chat_message',
 
                     username:
                         currentUser,
@@ -1215,7 +1726,7 @@
                 };
 
 
-                /* SEND MESSAGE */
+                /* Send to server */
 
                 socket.send(
                     JSON.stringify(
@@ -1224,7 +1735,11 @@
                 );
 
 
-                /* DISPLAY OWN MESSAGE */
+                /*
+                 * Render own message immediately.
+                 * The WebSocket handler ignores our
+                 * own broadcast to prevent duplicates.
+                 */
 
                 renderBubble(
                     currentUser,
@@ -1234,17 +1749,16 @@
                 );
 
 
-                /* CLEAR INPUT */
+                /* Clear input */
 
-                messageInput.value =
-                    '';
+                messageInput.value = '';
             }
         }
 
 
-        /* ==============================
+        /* =========================================
            SEND BUTTON
-        ============================== */
+        ========================================= */
 
         sendButton.addEventListener(
             'click',
@@ -1252,9 +1766,9 @@
         );
 
 
-        /* ==============================
-           ENTER KEY
-        ============================== */
+        /* =========================================
+           ENTER KEY TO SEND
+        ========================================= */
 
         messageInput.addEventListener(
             'keypress',
@@ -1275,4 +1789,3 @@
 </body>
 
 </html>
-
