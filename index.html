@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +9,10 @@
     <title>Secure Real-Time Chat</title>
 
     <style>
+        /* ==============================
+           GENERAL PAGE STYLING
+        ============================== */
+
         body {
             font-family: sans-serif;
             background-color: #f4f6f9;
@@ -19,8 +24,9 @@
             margin: 0;
         }
 
+
         /* ==============================
-           AUTHENTICATION BOX
+           AUTHENTICATION
         ============================== */
 
         .auth-container {
@@ -112,8 +118,9 @@
             display: none;
         }
 
+
         /* ==============================
-           CHAT APPLICATION
+           CHAT CONTAINER
         ============================== */
 
         .chat-container {
@@ -126,6 +133,11 @@
             display: flex;
             flex-direction: column;
         }
+
+
+        /* ==============================
+           CHAT HEADER
+        ============================== */
 
         .header {
             background: #007bff;
@@ -156,6 +168,11 @@
             background: #bd2130;
         }
 
+
+        /* ==============================
+           CHAT ROOMS
+        ============================== */
+
         .room-bar {
             display: flex;
             background: #e9ecef;
@@ -180,6 +197,11 @@
             color: white;
         }
 
+
+        /* ==============================
+           CHAT WINDOW
+        ============================== */
+
         #chat-window {
             height: 300px;
             overflow-y: auto;
@@ -189,6 +211,11 @@
             gap: 12px;
             background: #fafafa;
         }
+
+
+        /* ==============================
+           CHAT BUBBLES
+        ============================== */
 
         .bubble-wrapper {
             display: flex;
@@ -238,6 +265,11 @@
             margin-top: 2px;
         }
 
+
+        /* ==============================
+           TYPING STATUS
+        ============================== */
+
         #typing-status {
             height: 20px;
             font-size: 0.8rem;
@@ -248,6 +280,11 @@
             display: flex;
             align-items: center;
         }
+
+
+        /* ==============================
+           MESSAGE INPUT
+        ============================== */
 
         .input-area {
             display: flex;
@@ -275,25 +312,38 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        #send-button:hover {
+            background: #0056b3;
+        }
     </style>
 </head>
+
 
 <body>
 
     <!-- ==============================
-         1. REGISTRATION & LOGIN
+         LOGIN / REGISTRATION
     ============================== -->
 
     <div id="auth-box" class="auth-container">
 
-        <h3 id="auth-title">Login to Chat</h3>
+        <h3 id="auth-title">
+            Login to Chat
+        </h3>
 
         <div id="error-box" class="error-msg"></div>
 
         <div id="success-box" class="success-msg"></div>
 
+
+        <!-- USERNAME -->
+
         <div class="form-group">
-            <label for="username">Username</label>
+
+            <label for="username">
+                Username
+            </label>
 
             <input
                 type="text"
@@ -301,17 +351,28 @@
                 placeholder="Enter username"
                 autocomplete="off"
             >
+
         </div>
 
+
+        <!-- PASSWORD -->
+
         <div class="form-group">
-            <label for="password">Password</label>
+
+            <label for="password">
+                Password
+            </label>
 
             <input
                 type="password"
                 id="password"
                 placeholder="Enter password"
             >
+
         </div>
+
+
+        <!-- LOGIN / REGISTER BUTTON -->
 
         <button
             id="auth-submit-btn"
@@ -321,8 +382,15 @@
             Login
         </button>
 
-        <p class="toggle-text" id="toggle-area">
+
+        <!-- TOGGLE LOGIN / REGISTER -->
+
+        <p
+            class="toggle-text"
+            id="toggle-area"
+        >
             Do not have an account?
+
             <span onclick="toggleAuthMode(true)">
                 Register here
             </span>
@@ -332,7 +400,7 @@
 
 
     <!-- ==============================
-         2. MAIN CHAT DASHBOARD
+         CHAT APPLICATION
     ============================== -->
 
     <div
@@ -340,6 +408,8 @@
         class="chat-container"
         style="display: none;"
     >
+
+        <!-- HEADER -->
 
         <div class="header">
 
@@ -392,6 +462,9 @@
 
         <div id="chat-window"></div>
 
+
+        <!-- TYPING STATUS -->
+
         <div id="typing-status"></div>
 
 
@@ -414,6 +487,10 @@
 
     </div>
 
+
+    <!-- ==============================
+         JAVASCRIPT
+    ============================== -->
 
     <script>
 
@@ -454,7 +531,7 @@
 
 
         /* ==============================
-           TOGGLE LOGIN / REGISTER
+           LOGIN / REGISTER TOGGLE
         ============================== */
 
         function toggleAuthMode(toRegister) {
@@ -470,13 +547,17 @@
 
             if (isRegisterMode) {
 
-                document.getElementById('auth-title').textContent =
-                    'Create Account';
+                document.getElementById(
+                    'auth-title'
+                ).textContent = 'Create Account';
 
-                document.getElementById('auth-submit-btn').textContent =
-                    'Register';
+                document.getElementById(
+                    'auth-submit-btn'
+                ).textContent = 'Register';
 
-                document.getElementById('toggle-area').innerHTML =
+                document.getElementById(
+                    'toggle-area'
+                ).innerHTML =
                     'Already have an account? ' +
                     '<span onclick="toggleAuthMode(false)">' +
                     'Login here' +
@@ -484,13 +565,17 @@
 
             } else {
 
-                document.getElementById('auth-title').textContent =
-                    'Login to Chat';
+                document.getElementById(
+                    'auth-title'
+                ).textContent = 'Login to Chat';
 
-                document.getElementById('auth-submit-btn').textContent =
-                    'Login';
+                document.getElementById(
+                    'auth-submit-btn'
+                ).textContent = 'Login';
 
-                document.getElementById('toggle-area').innerHTML =
+                document.getElementById(
+                    'toggle-area'
+                ).innerHTML =
                     'Do not have an account? ' +
                     '<span onclick="toggleAuthMode(true)">' +
                     'Register here' +
@@ -510,14 +595,18 @@
 
 
             const usernameVal =
-                document.getElementById('username')
-                    .value
-                    .trim();
+                document.getElementById(
+                    'username'
+                ).value.trim();
+
 
             const passwordVal =
-                document.getElementById('password')
-                    .value;
+                document.getElementById(
+                    'password'
+                ).value;
 
+
+            /* VALIDATION */
 
             if (!usernameVal || !passwordVal) {
 
@@ -529,6 +618,8 @@
             }
 
 
+            /* SELECT ENDPOINT */
+
             const endpoint =
                 isRegisterMode
                     ? '/register'
@@ -537,27 +628,33 @@
 
             try {
 
-                const response = await fetch(
-                    endpoint,
-                    {
-                        method: 'POST',
+                const response =
+                    await fetch(
+                        endpoint,
+                        {
+                            method: 'POST',
 
-                        headers: {
-                            'Content-Type':
-                                'application/json'
-                        },
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
 
-                        body: JSON.stringify({
-                            username: usernameVal,
-                            password: passwordVal
-                        })
-                    }
-                );
+                            body: JSON.stringify({
+                                username:
+                                    usernameVal,
+
+                                password:
+                                    passwordVal
+                            })
+                        }
+                    );
 
 
                 const data =
                     await response.json();
 
+
+                /* SERVER ERROR */
 
                 if (!response.ok) {
 
@@ -570,6 +667,8 @@
                 }
 
 
+                /* REGISTRATION SUCCESS */
+
                 if (isRegisterMode) {
 
                     successBox.textContent =
@@ -581,6 +680,8 @@
                     toggleAuthMode(false);
 
                 } else {
+
+                    /* LOGIN SUCCESS */
 
                     currentUser =
                         data.username;
@@ -600,37 +701,45 @@
 
 
         /* ==============================
-           SHOW ERROR
+           DISPLAY ERROR
         ============================== */
 
         function showError(message) {
 
-            errorBox.textContent = message;
+            errorBox.textContent =
+                message;
 
-            errorBox.style.display = 'block';
+            errorBox.style.display =
+                'block';
         }
 
 
         /* ==============================
-           INITIALIZE CHAT
+           INITIALIZE CHAT DASHBOARD
         ============================== */
 
         function initializeChatDashboard() {
 
-            document.getElementById('auth-box')
-                .style.display = 'none';
-
-            document.getElementById('chat-box')
-                .style.display = 'flex';
+            document.getElementById(
+                'auth-box'
+            ).style.display = 'none';
 
 
-            document.getElementById('welcome-label')
-                .textContent =
+            document.getElementById(
+                'chat-box'
+            ).style.display = 'flex';
+
+
+            document.getElementById(
+                'welcome-label'
+            ).textContent =
                 `Hi, ${currentUser} 🌐`;
 
 
             chatWindow.innerHTML = '';
 
+
+            /* DETERMINE WEBSOCKET PROTOCOL */
 
             const protocol =
                 window.location.protocol === 'https:'
@@ -643,6 +752,8 @@
                 'localhost:3000';
 
 
+            /* CREATE WEBSOCKET CONNECTION */
+
             socket =
                 new WebSocket(
                     `${protocol}//${host}`
@@ -650,7 +761,7 @@
 
 
             /* ==============================
-               SOCKET CONNECTED
+               WEBSOCKET CONNECTED
             ============================== */
 
             socket.onopen = () => {
@@ -665,7 +776,7 @@
 
 
             /* ==============================
-               SOCKET MESSAGE
+               WEBSOCKET MESSAGE
             ============================== */
 
             socket.onmessage = (event) => {
@@ -674,7 +785,9 @@
                     JSON.parse(event.data);
 
 
-                /* ROOM COUNTS */
+                /* ==========================
+                   ROOM COUNTS
+                ========================== */
 
                 if (data.type === 'room_counts') {
 
@@ -700,7 +813,9 @@
                 }
 
 
-                /* CHAT HISTORY */
+                /* ==========================
+                   CHAT HISTORY
+                ========================== */
 
                 if (data.type === 'chat_history') {
 
@@ -726,7 +841,9 @@
                 }
 
 
-                /* TYPING */
+                /* ==========================
+                   TYPING
+                ========================== */
 
                 if (data.type === 'typing') {
 
@@ -737,24 +854,38 @@
                 }
 
 
-                /* STOPPED TYPING */
+                /* ==========================
+                   STOPPED TYPING
+                ========================== */
 
-                if (data.type === 'stopped_typing') {
+                if (
+                    data.type ===
+                    'stopped_typing'
+                ) {
 
-                    typingStatus.textContent = '';
+                    typingStatus.textContent =
+                        '';
 
                     return;
                 }
 
 
-                /* NORMAL CHAT MESSAGE */
+                /* ==========================
+                   CHAT MESSAGE
+                ========================== */
 
-                renderBubble(
-                    data.username,
-                    data.text,
-                    data.time,
-                    'theirs'
-                );
+                if (
+                    data.type ===
+                    'chat_message'
+                ) {
+
+                    renderBubble(
+                        data.username,
+                        data.text,
+                        data.time,
+                        'theirs'
+                    );
+                }
             };
         }
 
@@ -775,12 +906,14 @@
             activeRoom = 'general';
 
 
-            document.getElementById('chat-box')
-                .style.display = 'none';
+            document.getElementById(
+                'chat-box'
+            ).style.display = 'none';
 
 
-            document.getElementById('auth-box')
-                .style.display = 'block';
+            document.getElementById(
+                'auth-box'
+            ).style.display = 'block';
 
 
             toggleAuthMode(false);
@@ -788,7 +921,7 @@
 
 
         /* ==============================
-           RENDER CHAT BUBBLE
+           RENDER CHAT MESSAGE
         ============================== */
 
         function renderBubble(
@@ -799,7 +932,9 @@
         ) {
 
             const wrapper =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
 
             wrapper.classList.add(
@@ -808,12 +943,14 @@
             );
 
 
-            /* OTHER USER NAME */
+            /* DISPLAY USERNAME */
 
             if (style === 'theirs') {
 
                 const nameLabel =
-                    document.createElement('div');
+                    document.createElement(
+                        'div'
+                    );
 
                 nameLabel.classList.add(
                     'sender-name'
@@ -828,10 +965,12 @@
             }
 
 
-            /* MESSAGE */
+            /* MESSAGE BUBBLE */
 
             const bubble =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
             bubble.classList.add(
                 'bubble'
@@ -848,7 +987,9 @@
             /* TIMESTAMP */
 
             const timeLabel =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
             timeLabel.classList.add(
                 'timestamp'
@@ -862,10 +1003,14 @@
             );
 
 
+            /* ADD MESSAGE TO CHAT */
+
             chatWindow.appendChild(
                 wrapper
             );
 
+
+            /* SCROLL TO BOTTOM */
 
             chatWindow.scrollTop =
                 chatWindow.scrollHeight;
@@ -878,33 +1023,54 @@
 
         function switchRoom(newRoomName) {
 
-            if (newRoomName === activeRoom) {
+            if (
+                newRoomName ===
+                activeRoom
+            ) {
                 return;
             }
 
 
+            /* REMOVE ACTIVE STATE */
+
             document.getElementById(
                 `btn-${activeRoom}`
-            ).classList.remove('active');
+            ).classList.remove(
+                'active'
+            );
 
+
+            /* ADD ACTIVE STATE */
 
             document.getElementById(
                 `btn-${newRoomName}`
-            ).classList.add('active');
+            ).classList.add(
+                'active'
+            );
 
+
+            /* UPDATE ACTIVE ROOM */
 
             activeRoom =
                 newRoomName;
 
 
-            chatWindow.innerHTML = '';
+            /* CLEAR CHAT */
 
-            typingStatus.textContent = '';
+            chatWindow.innerHTML =
+                '';
 
+
+            typingStatus.textContent =
+                '';
+
+
+            /* JOIN NEW ROOM */
 
             if (
                 socket &&
-                socket.readyState === WebSocket.OPEN
+                socket.readyState ===
+                    WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -918,14 +1084,17 @@
 
 
         /* ==============================
-           TYPING SIGNAL
+           SEND TYPING SIGNAL
         ============================== */
 
-        function sendTypingSignal(statusType) {
+        function sendTypingSignal(
+            statusType
+        ) {
 
             if (
                 socket &&
-                socket.readyState === WebSocket.OPEN
+                socket.readyState ===
+                    WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -946,9 +1115,12 @@
             'input',
             () => {
 
+                /* USER STARTED TYPING */
+
                 if (!isCurrentlyTyping) {
 
-                    isCurrentlyTyping = true;
+                    isCurrentlyTyping =
+                        true;
 
                     sendTypingSignal(
                         'typing'
@@ -956,10 +1128,14 @@
                 }
 
 
+                /* RESET TIMER */
+
                 clearTimeout(
                     typingTimeout
                 );
 
+
+                /* USER STOPPED TYPING */
 
                 typingTimeout =
                     setTimeout(
@@ -992,8 +1168,11 @@
             if (
                 messageText !== '' &&
                 socket &&
-                socket.readyState === WebSocket.OPEN
+                socket.readyState ===
+                    WebSocket.OPEN
             ) {
+
+                /* CURRENT TIME */
 
                 const currentTime =
                     new Date().toLocaleTimeString(
@@ -1005,23 +1184,26 @@
                     );
 
 
+                /* STOP TYPING */
+
                 clearTimeout(
                     typingTimeout
                 );
 
-
                 isCurrentlyTyping =
                     false;
-
 
                 sendTypingSignal(
                     'stopped_typing'
                 );
 
 
+                /* CREATE MESSAGE */
+
                 const payload = {
 
-                    type: 'chat_message',
+                    type:
+                        'chat_message',
 
                     username:
                         currentUser,
@@ -1034,12 +1216,16 @@
                 };
 
 
+                /* SEND MESSAGE */
+
                 socket.send(
                     JSON.stringify(
                         payload
                     )
                 );
 
+
+                /* DISPLAY OWN MESSAGE */
 
                 renderBubble(
                     currentUser,
@@ -1049,7 +1235,10 @@
                 );
 
 
-                messageInput.value = '';
+                /* CLEAR INPUT */
+
+                messageInput.value =
+                    '';
             }
         }
 
@@ -1072,7 +1261,10 @@
             'keypress',
             (event) => {
 
-                if (event.key === 'Enter') {
+                if (
+                    event.key ===
+                    'Enter'
+                ) {
 
                     dispatchMessage();
                 }
