@@ -9,7 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Secure DM Chat App</title>
+    <title>Secure DM Chat App with Profiles</title>
 
     <style>
 
@@ -20,16 +20,13 @@
         body {
             font-family: sans-serif;
             background-color: #f4f6f9;
-
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-
             height: 100vh;
             margin: 0;
         }
-
 
         /* =========================================
            AUTHENTICATION CONTAINER
@@ -38,160 +35,121 @@
         .auth-container {
             width: 100%;
             max-width: 380px;
-
             background: white;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 4px 15px rgba(0, 0, 0, 0.1);
-
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             padding: 30px;
-
             box-sizing: border-box;
         }
 
-
         .auth-container h3 {
             margin-top: 0;
-
             text-align: center;
-
             color: #333;
-
             font-size: 1.4rem;
         }
-
-
-        /* =========================================
-           FORM GROUP
-        ========================================= */
 
         .form-group {
             margin-bottom: 15px;
         }
 
-
         .form-group label {
             display: block;
-
             margin-bottom: 5px;
-
             font-size: 0.85rem;
-
             color: #666;
-
             font-weight: bold;
         }
 
-
         .form-group input {
             width: 100%;
-
             padding: 10px;
-
             border: 1px solid #ddd;
-
             border-radius: 6px;
-
             box-sizing: border-box;
-
             font-size: 0.95rem;
-
             outline: none;
         }
 
+        /* =========================================
+           AVATAR SELECTOR
+        ========================================= */
 
-        .form-group input:focus {
-            border-color: #007bff;
+        .avatar-picker-grid {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            justify-content: space-between;
         }
 
+        .avatar-choice {
+            font-size: 1.6rem;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
+
+        .avatar-choice.selected {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
 
         /* =========================================
-           AUTH BUTTON
+           AUTHENTICATION BUTTONS
         ========================================= */
 
         .auth-btn {
             width: 100%;
-
             background: #007bff;
-
             color: white;
-
             border: none;
-
             padding: 12px;
-
             border-radius: 6px;
-
             font-size: 1rem;
-
             font-weight: bold;
-
             cursor: pointer;
-
             margin-top: 10px;
         }
-
 
         .auth-btn:hover {
             background: #0056b3;
         }
 
-
-        /* =========================================
-           AUTH TOGGLE
-        ========================================= */
-
         .toggle-text {
             text-align: center;
-
             font-size: 0.85rem;
-
             color: #666;
-
             margin-top: 15px;
         }
 
-
         .toggle-text span {
             color: #007bff;
-
             cursor: pointer;
-
             font-weight: bold;
         }
 
-
         /* =========================================
-           ERROR / SUCCESS MESSAGES
+           ERROR AND SUCCESS MESSAGES
         ========================================= */
 
         .error-msg {
             color: #dc3545;
-
             font-size: 0.85rem;
-
             margin-bottom: 10px;
-
             text-align: center;
-
             display: none;
         }
-
 
         .success-msg {
             color: #28a745;
-
             font-size: 0.85rem;
-
             margin-bottom: 10px;
-
             text-align: center;
-
             display: none;
         }
-
 
         /* =========================================
            MAIN CHAT CONTAINER
@@ -199,70 +157,56 @@
 
         .chat-container {
             width: 90%;
-
             max-width: 800px;
-
             height: 80vh;
-
             background: white;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 4px 15px rgba(0, 0, 0, 0.1);
-
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-
             display: flex;
         }
 
-
         /* =========================================
-           LEFT SIDEBAR
+           SIDEBAR
         ========================================= */
 
         .sidebar {
             width: 250px;
-
             background: #2f3640;
-
             color: white;
-
             display: flex;
-
             flex-direction: column;
-
             border-right: 1px solid #ddd;
         }
 
-
-        /* =========================================
-           SIDEBAR HEADER
-        ========================================= */
-
         .sidebar-header {
             padding: 15px;
-
             background: #1e222b;
-
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
         }
 
+        /* =========================================
+           USER PROFILE BADGE
+        ========================================= */
 
-        .sidebar-header h3 {
-            margin: 0;
-
-            font-size: 1rem;
-
-            word-break: break-all;
-
-            max-width: 140px;
+        .user-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 150px;
         }
 
+        .user-avatar-pic {
+            font-size: 1.4rem;
+        }
+
+        .user-profile-badge h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            word-break: break-all;
+        }
 
         /* =========================================
            LOGOUT BUTTON
@@ -270,54 +214,33 @@
 
         .logout-btn {
             background: #dc3545;
-
             color: white;
-
             border: none;
-
             padding: 5px 10px;
-
             border-radius: 4px;
-
             font-size: 0.75rem;
-
             cursor: pointer;
         }
 
-
         /* =========================================
-           SIDEBAR SECTION TITLES
+           SIDEBAR SECTIONS
         ========================================= */
 
         .section-title {
             font-size: 0.75rem;
-
             font-weight: bold;
-
             color: #718093;
-
             text-transform: uppercase;
-
             padding: 15px 15px 5px 15px;
-
             letter-spacing: 1px;
         }
 
-
-        /* =========================================
-           SIDEBAR LIST
-        ========================================= */
-
         .list-container {
             display: flex;
-
             flex-direction: column;
-
             gap: 2px;
-
             padding: 0 10px;
         }
-
 
         /* =========================================
            SIDEBAR ITEMS
@@ -325,93 +248,70 @@
 
         .item-btn {
             border: none;
-
             background: transparent;
-
             color: #dcdde1;
-
             text-align: left;
-
             padding: 8px 12px;
-
             border-radius: 6px;
-
             cursor: pointer;
-
             font-size: 0.9rem;
-
             transition: background 0.2s;
-
             display: flex;
-
+            align-items: center;
             justify-content: space-between;
         }
-
 
         .item-btn:hover {
             background: #3f4856;
         }
 
-
         .item-btn.active {
             background: #007bff;
-
             color: white;
         }
 
+        .user-item-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
         /* =========================================
-           MAIN CHAT PANEL
+           MAIN CHAT AREA
         ========================================= */
 
         .main-chat {
             flex: 1;
-
             display: flex;
-
             flex-direction: column;
-
             background: #fafafa;
         }
 
-
-        /* =========================================
-           CHAT HEADER
-        ========================================= */
-
         .chat-header {
             padding: 15px;
-
             background: #fff;
-
             border-bottom: 1px solid #eee;
-
             font-weight: bold;
-
             font-size: 1.1rem;
-
             color: #333;
         }
 
-
-        /* =========================================
-           CHAT WINDOW
-        ========================================= */
-
         #chat-window {
             flex: 1;
-
             overflow-y: auto;
-
             padding: 15px;
-
             display: flex;
-
             flex-direction: column;
-
             gap: 12px;
         }
-
 
         /* =========================================
            MESSAGE BUBBLES
@@ -419,75 +319,70 @@
 
         .bubble-wrapper {
             display: flex;
-
-            flex-direction: column;
-
-            max-width: 70%;
-        }
-
-
-        .mine {
-            align-self: flex-end;
-
+            gap: 10px;
+            max-width: 75%;
             align-items: flex-end;
         }
 
+        .mine {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
 
         .theirs {
             align-self: flex-start;
+            flex-direction: row;
+        }
 
+        .msg-avatar {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+        }
+
+        .msg-content-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mine .msg-content-area {
+            align-items: flex-end;
+        }
+
+        .theirs .msg-content-area {
             align-items: flex-start;
         }
 
-
         .sender-name {
             font-size: 0.75rem;
-
             color: #666;
-
             margin-bottom: 2px;
-
             font-weight: bold;
         }
 
-
         .bubble {
             padding: 10px 14px;
-
             border-radius: 18px;
-
             word-wrap: break-word;
-
             font-size: 0.95rem;
         }
 
-
         .mine .bubble {
             background: #007bff;
-
             color: white;
-
             border-bottom-right-radius: 2px;
         }
 
-
         .theirs .bubble {
             background: #e9ecef;
-
             color: #333;
-
             border-bottom-left-radius: 2px;
         }
 
-
         .timestamp {
             font-size: 0.7rem;
-
             color: #999;
-
             margin-top: 2px;
         }
-
 
         /* =========================================
            TYPING STATUS
@@ -495,20 +390,13 @@
 
         #typing-status {
             height: 20px;
-
             font-size: 0.8rem;
-
             color: #666;
-
             font-style: italic;
-
             padding: 0 15px;
-
             display: flex;
-
             align-items: center;
         }
-
 
         /* =========================================
            MESSAGE INPUT AREA
@@ -516,87 +404,50 @@
 
         .input-area {
             display: flex;
-
             border-top: 1px solid #eee;
-
             padding: 10px;
-
             background: white;
         }
 
-
         #message-input {
             flex: 1;
-
             padding: 12px;
-
             border: 1px solid #ddd;
-
             border-radius: 20px;
-
             outline: none;
-
             font-size: 0.95rem;
         }
 
-
         #send-button {
             background: #007bff;
-
             color: white;
-
             border: none;
-
             padding: 0 20px;
-
             margin-left: 8px;
-
             border-radius: 20px;
-
             font-weight: bold;
-
             cursor: pointer;
         }
 
     </style>
 </head>
 
-
 <body>
 
     <!-- =========================================
-         AUTHENTICATION FORM
+         AUTHENTICATION FORM SCREEN
     ========================================= -->
 
-    <div
-        id="auth-box"
-        class="auth-container"
-    >
+    <div id="auth-box" class="auth-container">
 
-        <h3 id="auth-title">
-            Login to Chat
-        </h3>
+        <h3 id="auth-title">Login to Chat</h3>
 
+        <div id="error-box" class="error-msg"></div>
 
-        <div
-            id="error-box"
-            class="error-msg"
-        ></div>
-
-
-        <div
-            id="success-box"
-            class="success-msg"
-        ></div>
-
-
-        <!-- USERNAME -->
+        <div id="success-box" class="success-msg"></div>
 
         <div class="form-group">
-
-            <label for="username">
-                Username
-            </label>
+            <label for="username">Username</label>
 
             <input
                 type="text"
@@ -604,28 +455,68 @@
                 placeholder="Enter username"
                 autocomplete="off"
             >
-
         </div>
 
-
-        <!-- PASSWORD -->
-
         <div class="form-group">
-
-            <label for="password">
-                Password
-            </label>
+            <label for="password">Password</label>
 
             <input
                 type="password"
                 id="password"
                 placeholder="Enter password"
             >
-
         </div>
 
+        <!-- PROFILE AVATAR SELECTOR -->
 
-        <!-- AUTH BUTTON -->
+        <div
+            class="form-group"
+            id="avatar-picker-section"
+            style="display: none;"
+        >
+
+            <label>Choose Profile Picture Icon</label>
+
+            <div class="avatar-picker-grid">
+
+                <span
+                    class="avatar-choice selected"
+                    onclick="selectAvatar(this, '🦊')"
+                >
+                    🦊
+                </span>
+
+                <span
+                    class="avatar-choice"
+                    onclick="selectAvatar(this, '🐱')"
+                >
+                    🐱
+                </span>
+
+                <span
+                    class="avatar-choice"
+                    onclick="selectAvatar(this, '🐼')"
+                >
+                    🐼
+                </span>
+
+                <span
+                    class="avatar-choice"
+                    onclick="selectAvatar(this, '🦁')"
+                >
+                    🦁
+                </span>
+
+                <span
+                    class="avatar-choice"
+                    onclick="selectAvatar(this, '🤖')"
+                >
+                    🤖
+                </span>
+
+            </div>
+
+        </div>
 
         <button
             id="auth-submit-btn"
@@ -635,15 +526,11 @@
             Login
         </button>
 
-
-        <!-- LOGIN / REGISTER TOGGLE -->
-
         <p
             class="toggle-text"
             id="toggle-area"
         >
             Do not have an account?
-
             <span onclick="toggleAuthMode(true)">
                 Register here
             </span>
@@ -653,7 +540,7 @@
 
 
     <!-- =========================================
-         MAIN CHAT INTERFACE
+         MAIN CHATROOM INTERFACE
     ========================================= -->
 
     <div
@@ -662,19 +549,28 @@
         style="display: none;"
     >
 
-        <!-- =====================================
-             LEFT SIDEBAR
-        ====================================== -->
+        <!-- SIDEBAR -->
 
         <div class="sidebar">
 
-            <!-- SIDEBAR HEADER -->
-
             <div class="sidebar-header">
 
-                <h3 id="welcome-label">
-                    User
-                </h3>
+                <!-- USER PROFILE -->
+
+                <div class="user-profile-badge">
+
+                    <span
+                        class="user-avatar-pic"
+                        id="my-profile-avatar"
+                    >
+                        🦊
+                    </span>
+
+                    <h3 id="welcome-label">
+                        User
+                    </h3>
+
+                </div>
 
                 <button
                     class="logout-btn"
@@ -692,7 +588,6 @@
                 Rooms
             </div>
 
-
             <div
                 class="list-container"
                 id="rooms-list"
@@ -704,12 +599,8 @@
                     onclick="switchRoom('general')"
                 >
                     # general
-
-                    <span id="count-general">
-                        (0)
-                    </span>
+                    <span id="count-general">(0)</span>
                 </button>
-
 
                 <button
                     class="item-btn"
@@ -717,12 +608,8 @@
                     onclick="switchRoom('gaming')"
                 >
                     # gaming
-
-                    <span id="count-gaming">
-                        (0)
-                    </span>
+                    <span id="count-gaming">(0)</span>
                 </button>
-
 
                 <button
                     class="item-btn"
@@ -730,10 +617,7 @@
                     onclick="switchRoom('music')"
                 >
                     # music
-
-                    <span id="count-music">
-                        (0)
-                    </span>
+                    <span id="count-music">(0)</span>
                 </button>
 
             </div>
@@ -745,27 +629,17 @@
                 Direct Messages 💬
             </div>
 
-
             <div
                 class="list-container"
                 id="users-list"
-            >
-                <!--
-                    Online user buttons
-                    will be generated dynamically.
-                -->
-            </div>
+            ></div>
 
         </div>
 
 
-        <!-- =====================================
-             RIGHT CHAT PANEL
-        ====================================== -->
+        <!-- MAIN CHAT -->
 
         <div class="main-chat">
-
-            <!-- CHAT HEADER -->
 
             <div
                 class="chat-header"
@@ -774,18 +648,9 @@
                 # general
             </div>
 
-
-            <!-- CHAT WINDOW -->
-
             <div id="chat-window"></div>
 
-
-            <!-- TYPING STATUS -->
-
             <div id="typing-status"></div>
-
-
-            <!-- MESSAGE INPUT -->
 
             <div class="input-area">
 
@@ -814,24 +679,21 @@
     <script>
 
         /* =========================================
-           GLOBAL VARIABLES
+           APPLICATION STATE
         ========================================= */
 
         let currentUser = null;
-
+        let currentAvatar = '🦊';
+        let selectedRegisterAvatar = '🦊';
         let activeRoom = 'general';
-
         let socket = null;
-
         let isRegisterMode = false;
-
         let typingTimeout;
-
         let isCurrentlyTyping = false;
 
 
         /* =========================================
-           DOM ELEMENTS
+           DOM ELEMENT REFERENCES
         ========================================= */
 
         const chatWindow =
@@ -854,7 +716,26 @@
 
 
         /* =========================================
-           LOGIN / REGISTER TOGGLE
+           AVATAR SELECTION
+        ========================================= */
+
+        function selectAvatar(element, emojiValue) {
+
+            const choices =
+                document.querySelectorAll('.avatar-choice');
+
+            choices.forEach(choice => {
+                choice.classList.remove('selected');
+            });
+
+            element.classList.add('selected');
+
+            selectedRegisterAvatar = emojiValue;
+        }
+
+
+        /* =========================================
+           TOGGLE LOGIN / REGISTER MODE
         ========================================= */
 
         function toggleAuthMode(toRegister) {
@@ -862,56 +743,42 @@
             isRegisterMode = toRegister;
 
             errorBox.style.display = 'none';
-
             successBox.style.display = 'none';
 
             document.getElementById('username').value = '';
-
             document.getElementById('password').value = '';
-
-
-            /* REGISTER MODE */
 
             if (isRegisterMode) {
 
-                document.getElementById(
-                    'auth-title'
-                ).textContent = 'Create Account';
+                document.getElementById('auth-title')
+                    .textContent = 'Create Account';
 
-                document.getElementById(
-                    'auth-submit-btn'
-                ).textContent = 'Register';
+                document.getElementById('auth-submit-btn')
+                    .textContent = 'Register';
 
-                document.getElementById(
-                    'toggle-area'
-                ).innerHTML =
+                document.getElementById('avatar-picker-section')
+                    .style.display = 'block';
+
+                document.getElementById('toggle-area')
+                    .innerHTML =
                     'Already have an account? ' +
-                    '<span onclick="toggleAuthMode(false)">' +
-                    'Login here' +
-                    '</span>';
+                    '<span onclick="toggleAuthMode(false)">Login here</span>';
 
-            }
+            } else {
 
+                document.getElementById('auth-title')
+                    .textContent = 'Login to Chat';
 
-            /* LOGIN MODE */
+                document.getElementById('auth-submit-btn')
+                    .textContent = 'Login';
 
-            else {
+                document.getElementById('avatar-picker-section')
+                    .style.display = 'none';
 
-                document.getElementById(
-                    'auth-title'
-                ).textContent = 'Login to Chat';
-
-                document.getElementById(
-                    'auth-submit-btn'
-                ).textContent = 'Login';
-
-                document.getElementById(
-                    'toggle-area'
-                ).innerHTML =
+                document.getElementById('toggle-area')
+                    .innerHTML =
                     'Do not have an account? ' +
-                    '<span onclick="toggleAuthMode(true)">' +
-                    'Register here' +
-                    '</span>';
+                    '<span onclick="toggleAuthMode(true)">Register here</span>';
             }
         }
 
@@ -923,92 +790,60 @@
         async function submitAuth() {
 
             errorBox.style.display = 'none';
-
             successBox.style.display = 'none';
 
-
-            /* GET USERNAME */
-
             const usernameVal =
-                document.getElementById(
-                    'username'
-                ).value.trim();
-
-
-            /* GET PASSWORD */
+                document.getElementById('username')
+                    .value
+                    .trim();
 
             const passwordVal =
-                document.getElementById(
-                    'password'
-                ).value;
-
-
-            /* VALIDATE INPUT */
+                document.getElementById('password')
+                    .value;
 
             if (!usernameVal || !passwordVal) {
-
-                showError(
-                    'Please fill out all fields.'
-                );
-
+                showError('Please fill out all fields.');
                 return;
             }
-
-
-            /* SELECT API ENDPOINT */
 
             const endpoint =
                 isRegisterMode
                     ? '/register'
                     : '/login';
 
+            const bodyPayload =
+                isRegisterMode
+                    ? {
+                        username: usernameVal,
+                        password: passwordVal,
+                        avatar: selectedRegisterAvatar
+                    }
+                    : {
+                        username: usernameVal,
+                        password: passwordVal
+                    };
 
             try {
 
-                /* SEND REQUEST */
-
                 const response =
-                    await fetch(
-                        endpoint,
-                        {
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
-
-                            body: JSON.stringify({
-                                username:
-                                    usernameVal,
-
-                                password:
-                                    passwordVal
-                            })
-                        }
-                    );
-
-
-                /* READ RESPONSE */
+                    await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(bodyPayload)
+                    });
 
                 const data =
                     await response.json();
 
-
-                /* HANDLE SERVER ERROR */
-
                 if (!response.ok) {
-
                     showError(
                         data.error ||
                         'Something went wrong.'
                     );
-
                     return;
                 }
-
-
-                /* REGISTRATION */
 
                 if (isRegisterMode) {
 
@@ -1019,21 +854,15 @@
 
                     toggleAuthMode(false);
 
-                }
-
-
-                /* LOGIN */
-
-                else {
+                } else {
 
                     currentUser = data.username;
+                    currentAvatar = data.avatar || '🦊';
 
                     initializeChatDashboard();
                 }
 
             } catch (err) {
-
-                console.error(err);
 
                 showError(
                     'Could not connect to authentication server.'
@@ -1049,7 +878,6 @@
         function showError(msg) {
 
             errorBox.textContent = msg;
-
             errorBox.style.display = 'block';
         }
 
@@ -1060,38 +888,27 @@
 
         function initializeChatDashboard() {
 
-            document.getElementById(
-                'auth-box'
-            ).style.display = 'none';
+            document.getElementById('auth-box')
+                .style.display = 'none';
 
+            document.getElementById('chat-box')
+                .style.display = 'flex';
 
-            document.getElementById(
-                'chat-box'
-            ).style.display = 'flex';
+            document.getElementById('welcome-label')
+                .textContent = currentUser;
 
-
-            document.getElementById(
-                'welcome-label'
-            ).textContent = currentUser;
-
+            document.getElementById('my-profile-avatar')
+                .textContent = currentAvatar;
 
             chatWindow.innerHTML = '';
-
-
-            /* DETERMINE WEBSOCKET PROTOCOL */
 
             const protocol =
                 window.location.protocol === 'https:'
                     ? 'wss:'
                     : 'ws:';
 
-
             const host =
-                window.location.host ||
-                'localhost:3000';
-
-
-            /* CREATE WEBSOCKET CONNECTION */
+                window.location.host || 'localhost:3000';
 
             socket =
                 new WebSocket(
@@ -1099,23 +916,19 @@
                 );
 
 
-            /* =====================================
+            /* =========================================
                WEBSOCKET CONNECTED
-            ===================================== */
+            ========================================= */
 
             socket.onopen = () => {
-
-                /* Register user identity */
 
                 socket.send(
                     JSON.stringify({
                         type: 'init',
-                        username: currentUser
+                        username: currentUser,
+                        avatar: currentAvatar
                     })
                 );
-
-
-                /* Join default room */
 
                 socket.send(
                     JSON.stringify({
@@ -1126,9 +939,9 @@
             };
 
 
-            /* =====================================
-               WEBSOCKET MESSAGE RECEIVED
-            ===================================== */
+            /* =========================================
+               WEBSOCKET MESSAGE HANDLER
+            ========================================= */
 
             socket.onmessage = (event) => {
 
@@ -1136,9 +949,7 @@
                     JSON.parse(event.data);
 
 
-                /* =================================
-                   STATE UPDATE
-                ================================= */
+                /* ONLINE USER / ROOM COUNTS */
 
                 if (data.type === 'state_update') {
 
@@ -1147,18 +958,15 @@
                     ).textContent =
                         `(${data.counts['general'] || 0})`;
 
-
                     document.getElementById(
                         'count-gaming'
                     ).textContent =
                         `(${data.counts['gaming'] || 0})`;
 
-
                     document.getElementById(
                         'count-music'
                     ).textContent =
                         `(${data.counts['music'] || 0})`;
-
 
                     updateOnlineUsersList(
                         data.users
@@ -1168,37 +976,31 @@
                 }
 
 
-                /* =================================
-                   CHAT HISTORY
-                ================================= */
+                /* CHAT HISTORY */
 
                 if (data.type === 'chat_history') {
 
-                    data.messages.forEach(
-                        (msg) => {
+                    data.messages.forEach(msg => {
 
-                            const style =
-                                msg.username === currentUser
-                                    ? 'mine'
-                                    : 'theirs';
+                        const style =
+                            msg.username === currentUser
+                                ? 'mine'
+                                : 'theirs';
 
-
-                            renderBubble(
-                                msg.username,
-                                msg.text,
-                                msg.time,
-                                style
-                            );
-                        }
-                    );
+                        renderBubble(
+                            msg.username,
+                            msg.text,
+                            msg.time,
+                            style,
+                            msg.avatar
+                        );
+                    });
 
                     return;
                 }
 
 
-                /* =================================
-                   TYPING
-                ================================= */
+                /* TYPING STATUS */
 
                 if (data.type === 'typing') {
 
@@ -1209,14 +1011,7 @@
                 }
 
 
-                /* =================================
-                   STOPPED TYPING
-                ================================= */
-
-                if (
-                    data.type ===
-                    'stopped_typing'
-                ) {
+                if (data.type === 'stopped_typing') {
 
                     typingStatus.textContent = '';
 
@@ -1224,149 +1019,80 @@
                 }
 
 
-                /* =================================
-                   CHAT MESSAGE
-                ================================= */
+                /* NEW CHAT MESSAGE */
 
-                if (
-                    data.type ===
-                    'chat_message'
-                ) {
+                if (data.type === 'chat_message') {
 
-                    /*
-                     * Only render incoming messages
-                     * here. The sender already renders
-                     * their own message inside
-                     * dispatchMessage().
-                     */
-
-                    if (
-                        data.username !==
-                        currentUser
-                    ) {
-
-                        renderBubble(
-                            data.username,
-                            data.text,
-                            data.time,
-                            'theirs'
-                        );
-                    }
+                    renderBubble(
+                        data.username,
+                        data.text,
+                        data.time,
+                        'theirs',
+                        data.avatar
+                    );
                 }
-            };
-
-
-            /* =====================================
-               WEBSOCKET ERROR
-            ===================================== */
-
-            socket.onerror = (error) => {
-
-                console.error(
-                    'WebSocket error:',
-                    error
-                );
-            };
-
-
-            /* =====================================
-               WEBSOCKET CLOSED
-            ===================================== */
-
-            socket.onclose = () => {
-
-                console.log(
-                    'WebSocket connection closed.'
-                );
             };
         }
 
 
         /* =========================================
-           UPDATE ONLINE USERS LIST
+           UPDATE ONLINE USERS
         ========================================= */
 
         function updateOnlineUsersList(usersList) {
 
             const usersContainer =
-                document.getElementById(
-                    'users-list'
-                );
-
+                document.getElementById('users-list');
 
             usersContainer.innerHTML = '';
 
+            usersList.forEach(user => {
 
-            usersList.forEach(
-                (user) => {
-
-                    /* Do not display yourself */
-
-                    if (
-                        user === currentUser
-                    ) {
-                        return;
-                    }
-
-
-                    const userBtn =
-                        document.createElement(
-                            'button'
-                        );
-
-
-                    userBtn.classList.add(
-                        'item-btn'
-                    );
-
-
-                    /*
-                     * Create a shared DM room ID.
-                     * Sorting guarantees both users
-                     * generate the same room name.
-                     */
-
-                    const dmRoomId =
-                        [
-                            'dm',
-                            currentUser,
-                            user
-                        ]
-                            .sort()
-                            .join('_');
-
-
-                    userBtn.id =
-                        `room-${dmRoomId}`;
-
-
-                    userBtn.innerHTML =
-                        `👤 ${user}`;
-
-
-                    userBtn.onclick = () =>
-                        switchRoom(
-                            dmRoomId,
-                            `DM with ${user}`
-                        );
-
-
-                    if (
-                        activeRoom ===
-                        dmRoomId
-                    ) {
-
-                        userBtn.classList.add(
-                            'active'
-                        );
-                    }
-
-
-                    usersContainer.appendChild(
-                        userBtn
-                    );
+                if (user.username === currentUser) {
+                    return;
                 }
-            );
+
+                const userBtn =
+                    document.createElement('button');
+
+                userBtn.classList.add('item-btn');
+
+
+                const dmRoomId =
+                    ['dm', currentUser, user.username]
+                        .sort()
+                        .join('_');
+
+                userBtn.id =
+                    `room-${dmRoomId}`;
+
+
+                userBtn.innerHTML = `
+                    <div class="user-item-content">
+                        <span>${user.avatar}</span>
+                        <span>${user.username}</span>
+                    </div>
+
+                    <span class="status-dot"></span>
+                `;
+
+
+                userBtn.onclick = () => {
+
+                    switchRoom(
+                        dmRoomId,
+                        `DM with ${user.username}`
+                    );
+                };
+
+
+                if (activeRoom === dmRoomId) {
+                    userBtn.classList.add('active');
+                }
+
+
+                usersContainer.appendChild(userBtn);
+            });
         }
 
 
@@ -1377,52 +1103,36 @@
         function logout() {
 
             if (socket) {
-
                 socket.close();
-
-                socket = null;
             }
 
-
             currentUser = null;
-
             activeRoom = 'general';
 
-            chatWindow.innerHTML = '';
+            document.getElementById('chat-box')
+                .style.display = 'none';
 
-            typingStatus.textContent = '';
-
-
-            document.getElementById(
-                'chat-box'
-            ).style.display = 'none';
-
-
-            document.getElementById(
-                'auth-box'
-            ).style.display = 'block';
-
+            document.getElementById('auth-box')
+                .style.display = 'block';
 
             toggleAuthMode(false);
         }
 
 
         /* =========================================
-           RENDER MESSAGE BUBBLE
+           RENDER CHAT MESSAGE
         ========================================= */
 
         function renderBubble(
             user,
             text,
             time,
-            style
+            style,
+            avatarEmoji = '👤'
         ) {
 
             const wrapper =
-                document.createElement(
-                    'div'
-                );
-
+                document.createElement('div');
 
             wrapper.classList.add(
                 'bubble-wrapper',
@@ -1430,83 +1140,85 @@
             );
 
 
-            /* Display sender name for others */
+            /* MESSAGE AVATAR */
+
+            const avatarDiv =
+                document.createElement('div');
+
+            avatarDiv.classList.add('msg-avatar');
+
+            avatarDiv.textContent =
+                avatarEmoji;
+
+            wrapper.appendChild(avatarDiv);
+
+
+            /* MESSAGE CONTENT */
+
+            const contentArea =
+                document.createElement('div');
+
+            contentArea.classList.add(
+                'msg-content-area'
+            );
+
+
+            /* SENDER NAME */
 
             if (style === 'theirs') {
 
                 const nameLabel =
-                    document.createElement(
-                        'div'
-                    );
-
+                    document.createElement('div');
 
                 nameLabel.classList.add(
                     'sender-name'
                 );
 
+                nameLabel.textContent = user;
 
-                nameLabel.textContent =
-                    user;
-
-
-                wrapper.appendChild(
+                contentArea.appendChild(
                     nameLabel
                 );
             }
 
 
-            /* Message */
+            /* MESSAGE BUBBLE */
 
             const bubble =
-                document.createElement(
-                    'div'
-                );
+                document.createElement('div');
 
+            bubble.classList.add('bubble');
 
-            bubble.classList.add(
-                'bubble'
-            );
+            bubble.textContent = text;
 
-
-            bubble.textContent =
-                text;
-
-
-            wrapper.appendChild(
+            contentArea.appendChild(
                 bubble
             );
 
 
-            /* Timestamp */
+            /* TIMESTAMP */
 
             const timeLabel =
-                document.createElement(
-                    'div'
-                );
-
+                document.createElement('div');
 
             timeLabel.classList.add(
                 'timestamp'
             );
 
+            timeLabel.textContent = time;
 
-            timeLabel.textContent =
-                time;
-
-
-            wrapper.appendChild(
+            contentArea.appendChild(
                 timeLabel
             );
 
 
-            /* Add message to chat */
+            wrapper.appendChild(
+                contentArea
+            );
 
             chatWindow.appendChild(
                 wrapper
             );
-
-
-            /* Scroll to bottom */
 
             chatWindow.scrollTop =
                 chatWindow.scrollHeight;
@@ -1514,7 +1226,7 @@
 
 
         /* =========================================
-           SWITCH ROOM / DIRECT MESSAGE
+           SWITCH CHAT ROOM
         ========================================= */
 
         function switchRoom(
@@ -1522,53 +1234,37 @@
             explicitTitle = null
         ) {
 
-            if (
-                newRoomName ===
-                activeRoom
-            ) {
+            if (newRoomName === activeRoom) {
                 return;
             }
 
-
-            /* Remove previous active state */
 
             const oldActiveBtn =
                 document.querySelector(
                     '.item-btn.active'
                 );
 
-
             if (oldActiveBtn) {
-
                 oldActiveBtn.classList.remove(
                     'active'
                 );
             }
 
 
-            /* Set new active room */
+            activeRoom = newRoomName;
 
-            activeRoom =
-                newRoomName;
-
-
-            /* Highlight selected button */
 
             const currentActiveBtn =
                 document.getElementById(
                     `room-${newRoomName}`
                 );
 
-
             if (currentActiveBtn) {
-
                 currentActiveBtn.classList.add(
                     'active'
                 );
             }
 
-
-            /* Update title */
 
             document.getElementById(
                 'current-room-title'
@@ -1577,19 +1273,14 @@
                 `# ${newRoomName}`;
 
 
-            /* Clear current chat */
-
             chatWindow.innerHTML = '';
 
             typingStatus.textContent = '';
 
 
-            /* Join room through WebSocket */
-
             if (
                 socket &&
-                socket.readyState ===
-                WebSocket.OPEN
+                socket.readyState === WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -1603,17 +1294,14 @@
 
 
         /* =========================================
-           SEND TYPING SIGNAL
+           TYPING SIGNAL
         ========================================= */
 
-        function sendTypingSignal(
-            statusType
-        ) {
+        function sendTypingSignal(statusType) {
 
             if (
                 socket &&
-                socket.readyState ===
-                WebSocket.OPEN
+                socket.readyState === WebSocket.OPEN
             ) {
 
                 socket.send(
@@ -1627,7 +1315,7 @@
 
 
         /* =========================================
-           TYPING DETECTION
+           DETECT TYPING
         ========================================= */
 
         messageInput.addEventListener(
@@ -1650,19 +1338,15 @@
 
 
                 typingTimeout =
-                    setTimeout(
-                        () => {
+                    setTimeout(() => {
 
-                            isCurrentlyTyping =
-                                false;
+                        isCurrentlyTyping = false;
 
-                            sendTypingSignal(
-                                'stopped_typing'
-                            );
+                        sendTypingSignal(
+                            'stopped_typing'
+                        );
 
-                        },
-                        1500
-                    );
+                    }, 1500);
             }
         );
 
@@ -1678,10 +1362,9 @@
 
 
             if (
-                messageText !== '' &&
+                messageText !== "" &&
                 socket &&
-                socket.readyState ===
-                WebSocket.OPEN
+                socket.readyState === WebSocket.OPEN
             ) {
 
                 const currentTime =
@@ -1694,62 +1377,44 @@
                     );
 
 
-                /* Stop typing */
-
                 clearTimeout(
                     typingTimeout
                 );
 
-
                 isCurrentlyTyping = false;
-
 
                 sendTypingSignal(
                     'stopped_typing'
                 );
 
 
-                /* Build message */
-
                 const payload = {
 
                     type: 'chat_message',
 
-                    username:
-                        currentUser,
+                    username: currentUser,
 
-                    text:
-                        messageText,
+                    avatar: currentAvatar,
 
-                    time:
-                        currentTime
+                    text: messageText,
+
+                    time: currentTime
                 };
 
 
-                /* Send to server */
-
                 socket.send(
-                    JSON.stringify(
-                        payload
-                    )
+                    JSON.stringify(payload)
                 );
 
-
-                /*
-                 * Render own message immediately.
-                 * The WebSocket handler ignores our
-                 * own broadcast to prevent duplicates.
-                 */
 
                 renderBubble(
                     currentUser,
                     messageText,
                     currentTime,
-                    'mine'
+                    'mine',
+                    currentAvatar
                 );
 
-
-                /* Clear input */
 
                 messageInput.value = '';
             }
@@ -1774,11 +1439,7 @@
             'keypress',
             (event) => {
 
-                if (
-                    event.key ===
-                    'Enter'
-                ) {
-
+                if (event.key === 'Enter') {
                     dispatchMessage();
                 }
             }
