@@ -304,7 +304,6 @@
             font-weight: bold;
         }
 
-        /* REPLY PREVIEW INSIDE BUBBLE */
         .reply-preview-box {
             background: rgba(0, 0, 0, 0.06);
             border-left: 3px solid #007bff;
@@ -410,12 +409,12 @@
             align-items: center;
         }
 
-        /* INPUT AREA & REPLY BAR */
         .input-wrapper {
             display: flex;
             flex-direction: column;
             border-top: 1px solid #eee;
             background: white;
+            position: relative;
         }
 
         .reply-target-bar {
@@ -455,11 +454,22 @@
 
         #message-input {
             flex: 1;
-            padding: 12px 12px;
+            padding: 12px 40px 12px 12px;
             border: 1px solid #ddd;
             border-radius: 20px;
             outline: none;
             font-size: 0.95rem;
+        }
+
+        #emoji-toggle-btn {
+            position: absolute;
+            right: 95px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
         }
 
         #send-button {
@@ -471,6 +481,56 @@
             border-radius: 20px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .emoji-picker-panel {
+            position: absolute;
+            bottom: 65px;
+            right: 20px;
+            width: 280px;
+            height: 200px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .emoji-picker-header {
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #f5f5f5;
+            border-bottom: 1px solid #eee;
+            color: #666;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .emoji-picker-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            align-content: start;
+        }
+
+        .emoji-item {
+            font-size: 1.3rem;
+            text-align: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.1s;
+            user-select: none;
+        }
+
+        .emoji-item:hover {
+            background: #e3f2fd;
         }
     </style>
 </head>
@@ -543,16 +603,19 @@
             <div id="typing-status"></div>
 
             <div class="input-wrapper">
-                <!-- Reply Target Info Bar -->
+                <div id="emoji-picker" class="emoji-picker-panel">
+                    <div class="emoji-picker-header">Select an Emoji</div>
+                    <div id="emoji-grid" class="emoji-picker-grid"></div>
+                </div>
+
                 <div id="reply-target-bar" class="reply-target-bar">
-                    <div class="reply-target-info" id="reply-target-text">
-                        Replying to user...
-                    </div>
+                    <div class="reply-target-info" id="reply-target-text">Replying to user...</div>
                     <button class="cancel-reply-btn" onclick="cancelReplyTarget()">×</button>
                 </div>
 
                 <div class="input-area">
                     <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off">
+                    <button id="emoji-toggle-btn" onclick="toggleEmojiPicker(event)">😊</button>
                     <button id="send-button">Send</button>
                 </div>
             </div>
@@ -570,8 +633,6 @@
 
         let typingTimeout;
         let isCurrentlyTyping = false;
-
-        // TRACKING ACTIVE REPLY STATE
         let currentReplyTarget = null;
 
         const chatWindow = document.getElementById('chat-window');
@@ -580,9 +641,66 @@
         const typingStatus = document.getElementById('typing-status');
         const errorBox = document.getElementById('error-box');
         const successBox = document.getElementById('success-box');
+        const emojiPicker = document.getElementById('emoji-picker');
 
         const replyTargetBar = document.getElementById('reply-target-bar');
         const replyTargetText = document.getElementById('reply-target-text');
+
+        const emojiLibrary = [
+            '😀', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉',
+            '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋',
+            '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎',
+            '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕',
+            '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢',
+            '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵',
+            '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔',
+            '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄',
+            '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤',
+            '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷',
+            '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺',
+            '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖',
+            '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀',
+            '😿', '😾', '👋', '🤚', '🖐', '✋', '🖖', '👌',
+            '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆',
+            '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛',
+            '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️',
+            '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+            '🔥', '✨', '🌟', '⭐', '💥', '🎉', '🎊', '🚀'
+        ];
+
+        function renderEmojiPickerGrid() {
+            const grid = document.getElementById('emoji-grid');
+            grid.innerHTML = '';
+            emojiLibrary.forEach(emoji => {
+                const el = document.createElement('div');
+                el.classList.add('emoji-item');
+                el.textContent = emoji;
+                el.onclick = (event) => appendEmojiToInput(event, emoji);
+                grid.appendChild(el);
+            });
+        }
+
+        function toggleEmojiPicker(event) {
+            event.stopPropagation();
+            emojiPicker.style.display = (emojiPicker.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function appendEmojiToInput(event, emoji) {
+            event.stopPropagation();
+            messageInput.value += emoji;
+            messageInput.focus();
+        }
+
+        document.addEventListener('click', (event) => {
+            if (
+                emojiPicker &&
+                emojiPicker.style.display === 'flex' &&
+                !emojiPicker.contains(event.target) &&
+                event.target.id !== 'emoji-toggle-btn'
+            ) {
+                emojiPicker.style.display = 'none';
+            }
+        });
 
         function setReplyTarget(msgId, username, text) {
             currentReplyTarget = { msgId, username, text };
@@ -677,6 +795,8 @@
             document.getElementById('welcome-label').textContent = currentUser;
             document.getElementById('my-profile-avatar').textContent = currentAvatar;
             chatWindow.innerHTML = '';
+
+            renderEmojiPickerGrid();
 
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const host = window.location.host || 'localhost:3000';
@@ -779,6 +899,7 @@
             if (socket) socket.close();
             currentUser = null;
             activeRoom = 'general';
+            if (emojiPicker) emojiPicker.style.display = 'none';
             cancelReplyTarget();
             document.getElementById('chat-box').style.display = 'none';
             document.getElementById('auth-box').style.display = 'block';
@@ -863,7 +984,6 @@
                 contentArea.appendChild(nameLabel);
             }
 
-            // RENDER REPLY PREVIEW IF IT REPLIES TO A MESSAGE
             if (replyToId && replyToUser && replyToText) {
                 const replyBox = document.createElement('div');
                 replyBox.classList.add('reply-preview-box');
@@ -894,7 +1014,6 @@
             reactionBar.classList.add('reaction-bar');
             reactionBar.id = `reactions-bar-${msgId}`;
 
-            // QUICK REPLY BUTTON NEXT TO REACTIONS
             const replyBtn = document.createElement('button');
             replyBtn.classList.add('reaction-trigger-btn');
             replyBtn.textContent = '↩️ Reply';
@@ -949,6 +1068,7 @@
             document.getElementById('current-room-title').textContent = explicitTitle || `# ${newRoomName}`;
             chatWindow.innerHTML = '';
             typingStatus.textContent = '';
+            if (emojiPicker) emojiPicker.style.display = 'none';
             cancelReplyTarget();
 
             if (socket && socket.readyState === WebSocket.OPEN) {
@@ -984,6 +1104,8 @@
                 clearTimeout(typingTimeout);
                 isCurrentlyTyping = false;
                 sendTypingSignal('stopped_typing');
+
+                if (emojiPicker) emojiPicker.style.display = 'none';
 
                 const payload = {
                     type: 'chat_message',
