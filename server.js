@@ -21,11 +21,11 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            avatar TEXT DEFAULT '👤'
+            avatar TEXT DEFAULT '🦊'
         )
     `);
 
-    // Added message_id explicitly mapping structure tracking requirements
+    // Added message_id explicitly and appended reply metadata columns
     db.run(`
         CREATE TABLE IF NOT EXISTS messages (
             message_id TEXT PRIMARY KEY,
@@ -33,11 +33,18 @@ db.serialize(() => {
             username TEXT NOT NULL,
             text TEXT NOT NULL,
             time TEXT NOT NULL,
-            avatar TEXT DEFAULT '👤'
+            avatar TEXT DEFAULT '🦊',
+            reply_to_id TEXT DEFAULT NULL,
+            reply_to_user TEXT DEFAULT NULL,
+            reply_to_text TEXT DEFAULT NULL
         )
     `);
 
-    // New Reactions Table mapping user choices to message IDs
+    // Migration logic in case database already exists without reply columns
+    db.run(`ALTER TABLE messages ADD COLUMN reply_to_id TEXT DEFAULT NULL`, () => {});
+    db.run(`ALTER TABLE messages ADD COLUMN reply_to_user TEXT DEFAULT NULL`, () => {});
+    db.run(`ALTER TABLE messages ADD COLUMN reply_to_text TEXT DEFAULT NULL`, () => {});
+
     db.run(`
         CREATE TABLE IF NOT EXISTS reactions (
             message_id TEXT NOT NULL,
@@ -63,7 +70,7 @@ const server = http.createServer((req, res) => {
                 if (!username || !password) return sendJSON(400, { error: 'Missing fields' });
 
                 const hashedPassword = bcrypt.hashSync(password, 10);
-                const userAvatar = avatar || '👤';
+                const userAvatar = avatar || '🦊';
 
                 db.run(`INSERT INTO users (username, password, avatar) VALUES (?, ?, ?)`, 
                     [username, hashedPassword, userAvatar], function(err) {
@@ -98,7 +105,7 @@ const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
         fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
             if (err) { res.writeHead(500); res.end('Error loading client file'); }
-            else { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(content, 'utf-8'); }
+            else { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(content, 'utf-utf-8'); }
         });
     } else {
         res.writeHead(404); res.end('Not Found');
@@ -113,7 +120,7 @@ function broadcastActiveState() {
 
     wss.clients.forEach(c => {
         if (c.username) {
-            activeUsers.push({ username: c.username, avatar: c.avatar || '👤', status: 'online' });
+            activeUsers.push({ username: c.username, avatar: c.avatar || '🦊', status: 'online' });
         }
         if (c.currentRoom && !c.currentRoom.startsWith('dm_')) {
             roomCounts[c.currentRoom] = (roomCounts[c.currentRoom] || 0) + 1;
@@ -132,7 +139,7 @@ function broadcastActiveState() {
 wss.on('connection', (ws) => {
     ws.currentRoom = 'general';
     ws.username = null;
-    ws.avatar = '👤';
+    ws.avatar = '🦊';
 
     ws.on('message', (bufferData) => {
         try {
@@ -141,7 +148,7 @@ wss.on('connection', (ws) => {
 
             if (parsedData.type === 'init') {
                 ws.username = parsedData.username;
-                ws.avatar = parsedData.avatar || '👤';
+                ws.avatar = parsedData.avatar || '🦊';
                 broadcastActiveState();
                 return;
             }
@@ -150,7 +157,6 @@ wss.on('connection', (ws) => {
                 ws.currentRoom = parsedData.room;
                 broadcastActiveState();
                 
-                // Fetch historical messages alongside grouped reaction metrics counts
                 const query = `
                     SELECT m.*, 
                            (SELECT json_group_array(json_object('emoji', r.emoji, 'username', r.username)) 
@@ -166,6 +172,9 @@ wss.on('connection', (ws) => {
                             text: row.text,
                             time: row.time,
                             avatar: row.avatar,
+                            reply_to_id: row.reply_to_id,
+                            reply_to_user: row.reply_to_user,
+                            reply_to_text: row.reply_to_text,
                             reactions: JSON.parse(row.reactions || '[]')
                         }));
                         ws.send(JSON.stringify({ type: 'chat_history', messages: historyPayload }));
@@ -175,21 +184,31 @@ wss.on('connection', (ws) => {
             }
 
             if (parsedData.type === 'chat_message') {
-                const stmt = db.prepare(`INSERT INTO messages (message_id, room, username, text, time, avatar) VALUES (?, ?, ?, ?, ?, ?)`);
-                stmt.run(parsedData.message_id, ws.currentRoom, parsedData.username, parsedData.text, parsedData.time, parsedData.avatar);
+                const stmt = db.prepare(`
+                    INSERT INTO messages (message_id, room, username, text, time, avatar, reply_to_id, reply_to_user, reply_to_text) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `);
+                stmt.run(
+                    parsedData.message_id, 
+                    ws.currentRoom, 
+                    parsedData.username, 
+                    parsedData.text, 
+                    parsedData.time, 
+                    parsedData.avatar,
+                    parsedData.reply_to_id || null,
+                    parsedData.reply_to_user || null,
+                    parsedData.reply_to_text || null
+                );
                 stmt.finalize();
             }
 
-            // NEW STATE HANDLING: User toggles a reaction button event payload
             if (parsedData.type === 'toggle_reaction') {
                 const checkQuery = `SELECT * FROM reactions WHERE message_id = ? AND username = ? AND emoji = ?`;
                 db.get(checkQuery, [parsedData.message_id, parsedData.username, parsedData.emoji], (err, row) => {
                     if (row) {
-                        // If it exists, user is clicking it again to remove it
                         db.run(`DELETE FROM reactions WHERE message_id = ? AND username = ? AND emoji = ?`, 
                             [parsedData.message_id, parsedData.username, parsedData.emoji]);
                     } else {
-                        // Otherwise, insert the new reaction interaction choice
                         db.run(`INSERT INTO reactions (message_id, username, emoji) VALUES (?, ?, ?)`, 
                             [parsedData.message_id, parsedData.username, parsedData.emoji]);
                     }
