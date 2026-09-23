@@ -25,7 +25,6 @@ db.serialize(() => {
         )
     `);
 
-    // Added message_id explicitly and appended reply metadata columns
     db.run(`
         CREATE TABLE IF NOT EXISTS messages (
             message_id TEXT PRIMARY KEY,
@@ -40,10 +39,16 @@ db.serialize(() => {
         )
     `);
 
-    // Migration logic in case database already exists without reply columns
-    db.run(`ALTER TABLE messages ADD COLUMN reply_to_id TEXT DEFAULT NULL`, () => {});
-    db.run(`ALTER TABLE messages ADD COLUMN reply_to_user TEXT DEFAULT NULL`, () => {});
-    db.run(`ALTER TABLE messages ADD COLUMN reply_to_text TEXT DEFAULT NULL`, () => {});
+    // Safely add missing columns if upgrading an existing database
+    const addColumnSafely = (columnDef) => {
+        db.run(`ALTER TABLE messages ADD COLUMN ${columnDef}`, (err) => {
+            // Ignore error if column already exists
+        });
+    };
+
+    addColumnSafely('reply_to_id TEXT DEFAULT NULL');
+    addColumnSafely('reply_to_user TEXT DEFAULT NULL');
+    addColumnSafely('reply_to_text TEXT DEFAULT NULL');
 
     db.run(`
         CREATE TABLE IF NOT EXISTS reactions (
@@ -104,11 +109,17 @@ const server = http.createServer((req, res) => {
 
     if (req.url === '/' || req.url === '/index.html') {
         fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
-            if (err) { res.writeHead(500); res.end('Error loading client file'); }
-            else { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(content, 'utf-utf-8'); }
+            if (err) { 
+                res.writeHead(500); 
+                res.end('Error loading client file'); 
+            } else { 
+                res.writeHead(200, { 'Content-Type': 'text/html' }); 
+                res.end(content, 'utf-8'); // Fixed typo: utf-8
+            }
         });
     } else {
-        res.writeHead(404); res.end('Not Found');
+        res.writeHead(404); 
+        res.end('Not Found');
     }
 });
 
