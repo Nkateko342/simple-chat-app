@@ -7,31 +7,97 @@
     <title>Secure Chat Suite</title>
 
     <style>
+        /* CSS Theme Variables */
+        :root {
+            --bg-color: #f4f6f9;
+            --container-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #dddddd;
+            --sidebar-bg: #2f3640;
+            --sidebar-header-bg: #1e222b;
+            --sidebar-text: #dcdde1;
+            --sidebar-hover: #3f4856;
+            --chat-bg: #fafafa;
+            --bubble-theirs-bg: #e9ecef;
+            --bubble-theirs-text: #333333;
+            --input-bg: #ffffff;
+            --input-border: #dddddd;
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --primary-light: #e3f2fd;
+        }
+
+        /* Dark Mode Theme Overrides */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-color: #333333;
+            --sidebar-bg: #181818;
+            --sidebar-header-bg: #121212;
+            --sidebar-text: #cccccc;
+            --sidebar-hover: #2a2a2a;
+            --chat-bg: #141414;
+            --bubble-theirs-bg: #2c2c2c;
+            --bubble-theirs-text: #e0e0e0;
+            --input-bg: #242424;
+            --input-border: #3d3d3d;
+            --primary-light: #1e3a5f;
+        }
+
         body {
             font-family: sans-serif;
-            background-color: #f4f6f9;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Theme Toggle Button Positioned Top-Right */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
         }
 
         .auth-container {
             width: 100%;
             max-width: 380px;
-            background: white;
+            background: var(--container-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             padding: 30px;
             box-sizing: border-box;
+            border: 1px solid var(--border-color);
         }
 
         .auth-container h3 {
             margin-top: 0;
             text-align: center;
-            color: #333;
+            color: var(--text-main);
             font-size: 1.4rem;
         }
 
@@ -43,14 +109,16 @@
             display: block;
             margin-bottom: 5px;
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text-muted);
             font-weight: bold;
         }
 
         .form-group input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-main);
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 0.95rem;
@@ -67,21 +135,21 @@
         .avatar-choice {
             font-size: 1.6rem;
             padding: 8px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            background: #fafafa;
+            background: var(--input-bg);
         }
 
         .avatar-choice.selected {
-            border-color: #007bff;
-            background: #e3f2fd;
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
         .auth-btn {
             width: 100%;
-            background: #007bff;
+            background: var(--primary);
             color: white;
             border: none;
             padding: 12px;
@@ -93,18 +161,18 @@
         }
 
         .auth-btn:hover {
-            background: #0056b3;
+            background: var(--primary-hover);
         }
 
         .toggle-text {
             text-align: center;
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text-muted);
             margin-top: 15px;
         }
 
         .toggle-text span {
-            color: #007bff;
+            color: var(--primary);
             cursor: pointer;
             font-weight: bold;
         }
@@ -129,25 +197,26 @@
             width: 90%;
             max-width: 800px;
             height: 80vh;
-            background: white;
+            background: var(--container-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             display: flex;
+            border: 1px solid var(--border-color);
         }
 
         .sidebar {
             width: 250px;
-            background: #2f3640;
-            color: white;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #ddd;
+            border-right: 1px solid var(--border-color);
         }
 
         .sidebar-header {
             padding: 15px;
-            background: #1e222b;
+            background: var(--sidebar-header-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -168,6 +237,7 @@
             margin: 0;
             font-size: 0.95rem;
             word-break: break-all;
+            color: var(--sidebar-text);
         }
 
         .logout-btn {
@@ -183,7 +253,7 @@
         .section-title {
             font-size: 0.75rem;
             font-weight: bold;
-            color: #718093;
+            color: var(--text-muted);
             text-transform: uppercase;
             padding: 15px 15px 5px 15px;
             letter-spacing: 1px;
@@ -199,7 +269,7 @@
         .item-btn {
             border: none;
             background: transparent;
-            color: #dcdde1;
+            color: var(--sidebar-text);
             text-align: left;
             padding: 8px 12px;
             border-radius: 6px;
@@ -212,11 +282,11 @@
         }
 
         .item-btn:hover {
-            background: #3f4856;
+            background: var(--sidebar-hover);
         }
 
         .item-btn.active {
-            background: #007bff;
+            background: var(--primary);
             color: white;
         }
 
@@ -238,17 +308,17 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #fafafa;
+            background: var(--chat-bg);
             position: relative;
         }
 
         .chat-header {
             padding: 15px;
-            background: #fff;
-            border-bottom: 1px solid #eee;
+            background: var(--container-bg);
+            border-bottom: 1px solid var(--border-color);
             font-weight: bold;
             font-size: 1.1rem;
-            color: #333;
+            color: var(--text-main);
         }
 
         #chat-window {
@@ -299,14 +369,14 @@
 
         .sender-name {
             font-size: 0.75rem;
-            color: #666;
+            color: var(--text-muted);
             margin-bottom: 2px;
             font-weight: bold;
         }
 
         .reply-preview-box {
-            background: rgba(0, 0, 0, 0.06);
-            border-left: 3px solid #007bff;
+            background: rgba(0, 0, 0, 0.08);
+            border-left: 3px solid var(--primary);
             padding: 4px 8px;
             border-radius: 4px;
             margin-bottom: 4px;
@@ -342,20 +412,20 @@
         }
 
         .mine .bubble {
-            background: #007bff;
+            background: var(--primary);
             color: white;
             border-bottom-right-radius: 2px;
         }
 
         .theirs .bubble {
-            background: #e9ecef;
-            color: #333;
+            background: var(--bubble-theirs-bg);
+            color: var(--bubble-theirs-text);
             border-bottom-left-radius: 2px;
         }
 
         .timestamp {
             font-size: 0.7rem;
-            color: #999;
+            color: var(--text-muted);
             margin-top: 2px;
         }
 
@@ -370,21 +440,22 @@
 
         .reaction-trigger-btn {
             border: none;
-            background: #eee;
+            background: var(--bubble-theirs-bg);
             padding: 2px 6px;
             border-radius: 10px;
             cursor: pointer;
             font-size: 0.75rem;
-            color: #555;
+            color: var(--text-muted);
         }
 
         .reaction-trigger-btn:hover {
-            background: #ddd;
+            opacity: 0.8;
         }
 
         .reaction-badge {
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
             padding: 2px 6px;
             border-radius: 10px;
             font-size: 0.75rem;
@@ -395,14 +466,14 @@
         }
 
         .reaction-badge.active {
-            border-color: #007bff;
-            background: #e3f2fd;
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
         #typing-status {
             height: 20px;
             font-size: 0.8rem;
-            color: #666;
+            color: var(--text-muted);
             font-style: italic;
             padding: 0 15px;
             display: flex;
@@ -412,8 +483,8 @@
         .input-wrapper {
             display: flex;
             flex-direction: column;
-            border-top: 1px solid #eee;
-            background: white;
+            border-top: 1px solid var(--border-color);
+            background: var(--container-bg);
             position: relative;
         }
 
@@ -421,11 +492,11 @@
             display: none;
             justify-content: space-between;
             align-items: center;
-            background: #e3f2fd;
-            border-left: 4px solid #007bff;
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
             padding: 6px 15px;
             font-size: 0.85rem;
-            color: #333;
+            color: var(--text-main);
         }
 
         .reply-target-info {
@@ -455,7 +526,9 @@
         #message-input {
             flex: 1;
             padding: 12px 40px 12px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-main);
             border-radius: 20px;
             outline: none;
             font-size: 0.95rem;
@@ -473,7 +546,7 @@
         }
 
         #send-button {
-            background: #007bff;
+            background: var(--primary);
             color: white;
             border: none;
             padding: 12px 20px;
@@ -483,15 +556,19 @@
             cursor: pointer;
         }
 
+        #send-button:hover {
+            background: var(--primary-hover);
+        }
+
         .emoji-picker-panel {
             position: absolute;
             bottom: 65px;
             right: 20px;
             width: 280px;
             height: 200px;
-            background: white;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             display: none;
             flex-direction: column;
@@ -502,9 +579,9 @@
             padding: 8px;
             font-size: 0.8rem;
             font-weight: bold;
-            background: #f5f5f5;
-            border-bottom: 1px solid #eee;
-            color: #666;
+            background: var(--chat-bg);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
         }
@@ -530,12 +607,14 @@
         }
 
         .emoji-item:hover {
-            background: #e3f2fd;
+            background: var(--primary-light);
         }
     </style>
 </head>
 
 <body>
+
+    <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
 
     <div id="auth-box" class="auth-container">
         <h3 id="auth-title">Login to Chat</h3>
@@ -623,6 +702,35 @@
     </div>
 
     <script>
+        // --- Theme Toggle Logic ---
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-toggle').textContent = '☀️️ Light Mode';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('theme-toggle').textContent = '🌙 Dark Mode';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('chat_app_theme', newTheme);
+            applyTheme(newTheme);
+        }
+
+        // Initialize Theme from localStorage or System Preference
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('chat_app_theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyTheme('dark');
+            }
+        })();
+
+        // --- Core App Logic ---
         let currentUser = null;
         let currentAvatar = '🦊';
         let selectedRegisterAvatar = '🦊';
@@ -651,14 +759,14 @@
             '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋',
             '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎',
             '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕',
-            '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢',
+            '🙁', '☹️️', '😣', '😖', '😫', '😩', '🥺', '😢',
             '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵',
             '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔',
             '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄',
             '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤',
             '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷',
             '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺',
-            '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖',
+            '🤡', '💩', '👻', '💀', '☠️️', '👽', '👾', '🤖',
             '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀',
             '😿', '😾', '👋', '🤚', '🖐', '✋', '🖖', '👌',
             '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆',
@@ -732,13 +840,23 @@
                 document.getElementById('auth-title').textContent = 'Create Account';
                 document.getElementById('auth-submit-btn').textContent = 'Register';
                 document.getElementById('avatar-picker-section').style.display = 'block';
-                document.getElementById('toggle-area').innerHTML = 'Already have an account? Login here';
+                document.getElementById('toggle-area').innerHTML = 'Already have an account? <span onclick="toggleAuthMode(false)">Login here</span>';
             } else {
                 document.getElementById('auth-title').textContent = 'Login to Chat';
                 document.getElementById('auth-submit-btn').textContent = 'Login';
                 document.getElementById('avatar-picker-section').style.display = 'none';
-                document.getElementById('toggle-area').innerHTML = 'Do not have an account? Register here';
+                document.getElementById('toggle-area').innerHTML = 'Do not have an account? <span onclick="toggleAuthMode(true)">Register here</span>';
             }
+        }
+
+        function showError(msg) {
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+        }
+
+        function showSuccess(msg) {
+            successBox.textContent = msg;
+            successBox.style.display = 'block';
         }
 
         async function submitAuth() {
@@ -766,383 +884,154 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    showError(data.error || 'Something went wrong.');
+                    showError(data.error || 'Authentication failed.');
                     return;
                 }
 
                 if (isRegisterMode) {
-                    successBox.textContent = 'Account created! You can now log in.';
-                    successBox.style.display = 'block';
-                    toggleAuthMode(false);
+                    showSuccess('Account created! Switching to login...');
+                    setTimeout(() => toggleAuthMode(false), 1200);
                 } else {
                     currentUser = data.username;
                     currentAvatar = data.avatar || '🦊';
-                    initializeChatDashboard();
+                    startChatSession();
                 }
-            } catch (error) {
-                showError('Could not connect to authentication server.');
+            } catch (err) {
+                showError('Server connection error.');
             }
         }
 
-        function showError(message) {
-            errorBox.textContent = message;
-            errorBox.style.display = 'block';
-        }
-
-        function initializeChatDashboard() {
+        function startChatSession() {
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('chat-box').style.display = 'flex';
             document.getElementById('welcome-label').textContent = currentUser;
             document.getElementById('my-profile-avatar').textContent = currentAvatar;
-            chatWindow.innerHTML = '';
 
             renderEmojiPickerGrid();
 
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.host || 'localhost:3000';
-            socket = new WebSocket(`${protocol}//${host}`);
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            socket = new WebSocket(`${protocol}//${location.host}`);
 
             socket.onopen = () => {
                 socket.send(JSON.stringify({ type: 'init', username: currentUser, avatar: currentAvatar }));
-                socket.send(JSON.stringify({ type: 'join_room', room: activeRoom }));
+                switchRoom('general');
             };
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
 
                 if (data.type === 'state_update') {
-                    document.getElementById('count-general').textContent = `(${data.counts['general'] || 0})`;
-                    document.getElementById('count-gaming').textContent = `(${data.counts['gaming'] || 0})`;
-                    document.getElementById('count-music').textContent = `(${data.counts['music'] || 0})`;
-                    updateOnlineUsersList(data.users);
-                    return;
-                }
-
-                if (data.type === 'chat_history') {
-                    data.messages.forEach(message => {
-                        const style = message.username === currentUser ? 'mine' : 'theirs';
-                        renderBubble(
-                            message.message_id,
-                            message.username,
-                            message.text,
-                            message.time,
-                            style,
-                            message.avatar,
-                            message.reactions,
-                            message.reply_to_id,
-                            message.reply_to_user,
-                            message.reply_to_text
-                        );
-                    });
-                    return;
-                }
-
-                if (data.type === 'toggle_reaction') {
-                    updateBubbleReactionsLocally(data.message_id, data.username, data.emoji);
-                    return;
-                }
-
-                if (data.type === 'typing') {
-                    typingStatus.textContent = `${data.username} is typing...`;
-                    return;
-                }
-
-                if (data.type === 'stopped_typing') {
-                    typingStatus.textContent = '';
-                    return;
-                }
-
-                if (data.type === 'chat_message') {
-                    renderBubble(
-                        data.message_id,
-                        data.username,
-                        data.text,
-                        data.time,
-                        'theirs',
-                        data.avatar,
-                        [],
-                        data.reply_to_id,
-                        data.reply_to_user,
-                        data.reply_to_text
-                    );
+                    updateRoomCounts(data.counts);
+                    updateUsersList(data.users);
+                } else if (data.type === 'chat_history') {
+                    chatWindow.innerHTML = '';
+                    data.messages.forEach(msg => displayMessage(msg));
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                } else if (data.type === 'chat_message') {
+                    displayMessage(data);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
                 }
             };
         }
 
-        function updateOnlineUsersList(usersList) {
-            const usersContainer = document.getElementById('users-list');
-            usersContainer.innerHTML = '';
+        function switchRoom(roomName) {
+            activeRoom = roomName;
+            document.getElementById('current-room-title').textContent = `# ${roomName}`;
+            document.querySelectorAll('.item-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`room-${roomName}`);
+            if (activeBtn) activeBtn.classList.add('active');
 
-            usersList.forEach(user => {
-                if (user.username === currentUser) return;
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type: 'join_room', room: roomName }));
+            }
+        }
 
-                const userBtn = document.createElement('button');
-                userBtn.classList.add('item-btn');
-                const dmRoomId = ['dm', currentUser, user.username].sort().join('_');
-                userBtn.id = `room-${dmRoomId}`;
-                userBtn.innerHTML = `
-                    <div class="user-item-content">
-                        <span>${user.avatar}</span>
-                        <span>${user.username}</span>
-                    </div>
-                    <span class="status-dot"></span>
-                `;
-
-                userBtn.onclick = () => switchRoom(dmRoomId, `DM with ${user.username}`);
-                if (activeRoom === dmRoomId) userBtn.classList.add('active');
-
-                usersContainer.appendChild(userBtn);
+        function updateRoomCounts(counts) {
+            ['general', 'gaming', 'music'].forEach(r => {
+                const el = document.getElementById(`count-${r}`);
+                if (el) el.textContent = `(${counts[r] || 0})`;
             });
+        }
+
+        function updateUsersList(users) {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            users.forEach(u => {
+                if (u.username !== currentUser) {
+                    const btn = document.createElement('button');
+                    btn.className = 'item-btn';
+                    btn.innerHTML = `
+                        <div class="user-item-content">
+                            <span class="status-dot"></span>
+                            <span>${u.avatar} ${u.username}</span>
+                        </div>
+                    `;
+                    list.appendChild(btn);
+                }
+            });
+        }
+
+        function displayMessage(data) {
+            const isMine = data.username === currentUser;
+            const wrapper = document.createElement('div');
+            wrapper.className = `bubble-wrapper ${isMine ? 'mine' : 'theirs'}`;
+
+            let replyHtml = '';
+            if (data.reply_to_user && data.reply_to_text) {
+                replyHtml = `
+                    <div class="reply-preview-box">
+                        <div class="reply-preview-user">${data.reply_to_user}</div>
+                        <div class="reply-preview-text">${data.reply_to_text}</div>
+                    </div>
+                `;
+            }
+
+            wrapper.innerHTML = `
+                <div class="msg-avatar">${data.avatar || '🦊'}</div>
+                <div class="msg-content-area">
+                    <div class="sender-name">${data.username}</div>
+                    ${replyHtml}
+                    <div class="bubble">${data.text}</div>
+                    <div class="timestamp">${data.time}</div>
+                </div>
+            `;
+
+            wrapper.onclick = () => setReplyTarget(data.message_id, data.username, data.text);
+            chatWindow.appendChild(wrapper);
+        }
+
+        sendButton.onclick = sendMessage;
+        messageInput.onkeydown = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+            const msgPayload = {
+                type: 'chat_message',
+                message_id: Date.now().toString(),
+                username: currentUser,
+                avatar: currentAvatar,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                reply_to_id: currentReplyTarget ? currentReplyTarget.msgId : null,
+                reply_to_user: currentReplyTarget ? currentReplyTarget.username : null,
+                reply_to_text: currentReplyTarget ? currentReplyTarget.text : null
+            };
+
+            socket.send(JSON.stringify(msgPayload));
+            displayMessage(msgPayload);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            messageInput.value = '';
+            cancelReplyTarget();
         }
 
         function logout() {
-            if (socket) socket.close();
-            currentUser = null;
-            activeRoom = 'general';
-            if (emojiPicker) emojiPicker.style.display = 'none';
-            cancelReplyTarget();
-            document.getElementById('chat-box').style.display = 'none';
-            document.getElementById('auth-box').style.display = 'block';
-            toggleAuthMode(false);
+            location.reload();
         }
-
-        function emitReactionToggle(msgId, emojiStr) {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                const payload = {
-                    type: 'toggle_reaction',
-                    message_id: msgId,
-                    username: currentUser,
-                    emoji: emojiStr
-                };
-                socket.send(JSON.stringify(payload));
-                updateBubbleReactionsLocally(msgId, currentUser, emojiStr);
-            }
-        }
-
-        function updateBubbleReactionsLocally(msgId, clickingUser, emojiStr) {
-            const trayContainer = document.getElementById(`reactions-bar-${msgId}`);
-            if (!trayContainer) return;
-
-            const existingBadge = document.getElementById(`badge-${msgId}-${emojiStr}`);
-
-            if (existingBadge) {
-                let users = JSON.parse(existingBadge.getAttribute('data-users') || '[]');
-                if (users.includes(clickingUser)) {
-                    users = users.filter(user => user !== clickingUser);
-                } else {
-                    users.push(clickingUser);
-                }
-
-                if (users.length === 0) {
-                    existingBadge.remove();
-                } else {
-                    existingBadge.setAttribute('data-users', JSON.stringify(users));
-                    existingBadge.innerHTML = `${emojiStr} <span>${users.length}</span>`;
-                    if (users.includes(currentUser)) existingBadge.classList.add('active');
-                    else existingBadge.classList.remove('active');
-                }
-            } else {
-                const badge = document.createElement('div');
-                badge.classList.add('reaction-badge');
-                badge.id = `badge-${msgId}-${emojiStr}`;
-                badge.setAttribute('data-users', JSON.stringify([clickingUser]));
-                badge.innerHTML = `${emojiStr} <span>1</span>`;
-                if (clickingUser === currentUser) badge.classList.add('active');
-                badge.onclick = () => emitReactionToggle(msgId, emojiStr);
-                trayContainer.appendChild(badge);
-            }
-        }
-
-        function renderBubble(
-            msgId,
-            user,
-            text,
-            time,
-            style,
-            avatarEmoji = '👤',
-            reactionsArray = [],
-            replyToId = null,
-            replyToUser = null,
-            replyToText = null
-        ) {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('bubble-wrapper', style);
-            wrapper.id = `msg-wrapper-${msgId}`;
-
-            const avatarDiv = document.createElement('div');
-            avatarDiv.classList.add('msg-avatar');
-            avatarDiv.textContent = avatarEmoji;
-            wrapper.appendChild(avatarDiv);
-
-            const contentArea = document.createElement('div');
-            contentArea.classList.add('msg-content-area');
-
-            if (style === 'theirs') {
-                const nameLabel = document.createElement('div');
-                nameLabel.classList.add('sender-name');
-                nameLabel.textContent = user;
-                contentArea.appendChild(nameLabel);
-            }
-
-            if (replyToId && replyToUser && replyToText) {
-                const replyBox = document.createElement('div');
-                replyBox.classList.add('reply-preview-box');
-                replyBox.innerHTML = `
-                    <div class="reply-preview-user">${replyToUser}</div>
-                    <div class="reply-preview-text">${replyToText}</div>
-                `;
-                replyBox.onclick = () => {
-                    const targetBubble = document.getElementById(`msg-wrapper-${replyToId}`);
-                    if (targetBubble) {
-                        targetBubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                };
-                contentArea.appendChild(replyBox);
-            }
-
-            const bubble = document.createElement('div');
-            bubble.classList.add('bubble');
-            bubble.textContent = text;
-            contentArea.appendChild(bubble);
-
-            const timeLabel = document.createElement('div');
-            timeLabel.classList.add('timestamp');
-            timeLabel.textContent = time;
-            contentArea.appendChild(timeLabel);
-
-            const reactionBar = document.createElement('div');
-            reactionBar.classList.add('reaction-bar');
-            reactionBar.id = `reactions-bar-${msgId}`;
-
-            const replyBtn = document.createElement('button');
-            replyBtn.classList.add('reaction-trigger-btn');
-            replyBtn.textContent = '↩️ Reply';
-            replyBtn.onclick = () => setReplyTarget(msgId, user, text);
-            reactionBar.appendChild(replyBtn);
-
-            const quickReactions = ['👍', '❤️', '😂'];
-            quickReactions.forEach(emoji => {
-                const trigger = document.createElement('button');
-                trigger.classList.add('reaction-trigger-btn');
-                trigger.textContent = emoji;
-                trigger.onclick = () => emitReactionToggle(msgId, emoji);
-                reactionBar.appendChild(trigger);
-            });
-
-            contentArea.appendChild(reactionBar);
-            wrapper.appendChild(contentArea);
-            chatWindow.appendChild(wrapper);
-
-            const grouped = {};
-            reactionsArray.forEach(reaction => {
-                if (!grouped[reaction.emoji]) grouped[reaction.emoji] = [];
-                grouped[reaction.emoji].push(reaction.username);
-            });
-
-            Object.keys(grouped).forEach(emoji => {
-                const badge = document.createElement('div');
-                badge.classList.add('reaction-badge');
-                badge.id = `badge-${msgId}-${emoji}`;
-                badge.setAttribute('data-users', JSON.stringify(grouped[emoji]));
-                badge.innerHTML = `${emoji} <span>${grouped[emoji].length}</span>`;
-
-                if (grouped[emoji].includes(currentUser)) badge.classList.add('active');
-                badge.onclick = () => emitReactionToggle(msgId, emoji);
-                reactionBar.appendChild(badge);
-            });
-
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function switchRoom(newRoomName, explicitTitle = null) {
-            if (newRoomName === activeRoom) return;
-
-            const oldActiveBtn = document.querySelector('.item-btn.active');
-            if (oldActiveBtn) oldActiveBtn.classList.remove('active');
-
-            activeRoom = newRoomName;
-
-            const currentActiveBtn = document.getElementById(`room-${newRoomName}`);
-            if (currentActiveBtn) currentActiveBtn.classList.add('active');
-
-            document.getElementById('current-room-title').textContent = explicitTitle || `# ${newRoomName}`;
-            chatWindow.innerHTML = '';
-            typingStatus.textContent = '';
-            if (emojiPicker) emojiPicker.style.display = 'none';
-            cancelReplyTarget();
-
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'join_room', room: activeRoom }));
-            }
-        }
-
-        function sendTypingSignal(statusType) {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: statusType, username: currentUser }));
-            }
-        }
-
-        messageInput.addEventListener('input', () => {
-            if (!isCurrentlyTyping) {
-                isCurrentlyTyping = true;
-                sendTypingSignal('typing');
-            }
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                isCurrentlyTyping = false;
-                sendTypingSignal('stopped_typing');
-            }, 1500);
-        });
-
-        function dispatchMessage() {
-            const messageText = messageInput.value.trim();
-
-            if (messageText !== "" && socket && socket.readyState === WebSocket.OPEN) {
-                const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const generatedMessageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-
-                clearTimeout(typingTimeout);
-                isCurrentlyTyping = false;
-                sendTypingSignal('stopped_typing');
-
-                if (emojiPicker) emojiPicker.style.display = 'none';
-
-                const payload = {
-                    type: 'chat_message',
-                    message_id: generatedMessageId,
-                    username: currentUser,
-                    avatar: currentAvatar,
-                    text: messageText,
-                    time: currentTime,
-                    reply_to_id: currentReplyTarget ? currentReplyTarget.msgId : null,
-                    reply_to_user: currentReplyTarget ? currentReplyTarget.username : null,
-                    reply_to_text: currentReplyTarget ? currentReplyTarget.text : null
-                };
-
-                socket.send(JSON.stringify(payload));
-
-                renderBubble(
-                    generatedMessageId,
-                    currentUser,
-                    messageText,
-                    currentTime,
-                    'mine',
-                    currentAvatar,
-                    [],
-                    payload.reply_to_id,
-                    payload.reply_to_user,
-                    payload.reply_to_text
-                );
-
-                messageInput.value = '';
-                cancelReplyTarget();
-            }
-        }
-
-        sendButton.addEventListener('click', dispatchMessage);
-        messageInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') dispatchMessage();
-        });
     </script>
 </body>
 
